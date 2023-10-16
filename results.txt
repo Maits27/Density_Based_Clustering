@@ -1,0 +1,11 @@
+
+
+
+
+                         | Limpieza, tokenización y lematización |  doc2vec (150 dim) | sklearn.DBSCAN (epsilon:2, minPts: 2) |
+        -----------------|---------------------------------------|--------------------|---------------------------------------|
+        100 instances:   |                   3.2s                |          0.9s      |                   0.5s                |
+        1000 instances:  |                  23.4s                |          5.8s      |                   3.7s                |
+        5000 instances:  |               1m 55.7s                |         29.6s      |                  19.9s                |
+        10000 instances: |               3m 56.9s                |       1m 0.9s      |        (no me acuerdo)                |
+        20000 instances: |               7m 47.1s                |       2m 0.0s      |               1m 29.4s                |
