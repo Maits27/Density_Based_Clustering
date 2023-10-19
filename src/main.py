@@ -71,71 +71,49 @@ class DensityAlgorithm:
 
         self.vecinos = []
         self.nucleos = []  # CONJUNTO DE INSTANCIAS NUCLEO
-        self.clusters = []  # CONJUNTO DE CLUSTERS
-        self.clustersValidos = []  # CONJUNTO DE CLUSTERS SELECCIONADOS
-        self.alcanzables = []
+        self.clusters = [-1] * len(self.vectors) # CONJUNTO DE CLUSTERS
+        self.distancias = {} # DISTANCIAS ENTRE VECTORES {frozenSet: float}
 
     def ejectuarAlgoritmo(self):
+        self.calcular_distancias()
         self.buscarNucleos()
         self.crearClusters()
-        '''self.seleccionClusters()
-        self.reclasificarInst()
-        self.reasignarLabelCluster()'''
 
     def buscarNucleos(self):
-        for i, doc in enumerate(self.vectors):
+        for i, _ in enumerate(self.vectors):
             v = []
-            for j, doc2 in enumerate(self.vectors):
-                distEuc = np.linalg.norm(doc - doc2)
-                if distEuc <= self.epsilon and j != i:
-                    v.append((j, doc2))
+            for j, _ in enumerate(self.vectors):
+                if self.distancias.get(frozenset([i, j])) <= self.epsilon and j != i:
+                    v.append(j)
             self.vecinos.append(v)
             if len(v) >= self.minPt:
-                self.nucleos.append((i, doc))
+                self.nucleos.append(i)
 
     def crearClusters(self):
-        # for i in tqdm(range(len(self.vectors)), desc="Creando Clusters"):
-        #     self.clusters.append(-1)
-        self.clusters = [-1] * len(self.vectors)
-
         numCluster = -1
         nucleosPorVisitar = []
-        for i, nucleo in self.nucleos:
+        for i in self.nucleos:
             if self.clusters[i] == -1:
                 numCluster += 1
                 self.clusters[i] = numCluster
-                nucleosPorVisitar.append((i, nucleo))
+                nucleosPorVisitar.append(i)
+
                 while nucleosPorVisitar:
-                    j, nucleo_actual = nucleosPorVisitar.pop()
-                    for index, vecino in self.vecinos[j]:
+                    j = nucleosPorVisitar.pop()
+
+                    for index in self.vecinos[j]:
                         if self.clusters[index] == -1:
                             self.clusters[index] = numCluster
-                            if (index, vecino) in self.nucleos:
-                                nucleosPorVisitar.append((index, vecino))
+                            if index in self.nucleos:
+                                nucleosPorVisitar.append(index)
 
-    def seleccionClusters(self):
-        for c in range(self.numCluster + 1):
-            if self.clusters.count(c) < self.minPt:
-                for i, clus in enumerate(self.clusters):
-                    if clus == c:
-                        self.alcanzables.append((i, self.vecinos[i]))
-            else:
-                self.clustersValidos.append(c)
-
-    def reclasificarInst(self):
-        for i, vecinos in self.alcanzables:
-            previo = self.clusters[i]
-            for j, v in vecinos:
-                if self.clusters[j] in self.clustersValidos:
-                    self.clusters[i] = self.clusters[j]
-            if previo == self.clusters[i]:
-                self.clusters[i] = -1
-
-    def reasignarLabelCluster(self):
-        for i in range(len(self.clustersValidos)):
-            for j in range(len(self.clusters)):
-                if self.clusters[j] == self.clustersValidos[i]:
-                    self.clusters[j] = i
+    def calcular_distancias(self):
+        for i, doc in enumerate(self.vectors):
+            for j, doc2 in enumerate(self.vectors):
+                if frozenset([i, j]) not in self.distancias:
+                    distEuc = np.linalg.norm(doc - doc2)
+                    self.distancias[frozenset([i, j])] = distEuc
+        print(f'LAS DISTANCIAS SUMAN: {len(self.distancias)}')
 
     def imprimir(self):
         total = 0
@@ -208,30 +186,72 @@ class DensityAlgorithm2:
                 print(f'Del cluster {cluster} hay {kont} instancias')
             total = total + kont
 
+class DBScanOriginal:
+    def __init__(self, vectors, epsilon, minPt):
+        self.vectors = vectors  # DOCUMENTOS VECTORIZADOS
+        self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
+        self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
+        self.clusters = []
+
+    def ejecutarAlgoritmo(self):
+        # Aplicar DBSCAN a los vectores de documentos
+        dbscan = DBSCAN(eps=self.epsilon, min_samples=self.minPt)  # Ajusta los parámetros según tu caso
+        self.clusters = dbscan.fit_predict(self.vectors)
+
+    def imprimir(self):
+        total = 0
+        for cluster in range(min(self.clusters), max(self.clusters) + 1):
+            kont = 0
+            for i in self.clusters:
+                if i == cluster:
+                    kont += 1
+            if cluster == -1:
+                print(f'Hay un total de {kont} instancias que son ruido')
+            else:
+                print(f'Del cluster {cluster} hay {kont} instancias')
+            total = total + kont
+
 
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/corto.csv')
+    preProcess = PreProcessing('../Datasets/Suicide_Detection20000.csv')
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()
 
     # PROCESO DE CLUSTERING
+    # PARAMETROS:
+    epsilon = 5
+    minPt = 10
+
+    # CLUSTERING ALTERNATIVO
     start_time = time.time()
-    algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=5, minPt=10)
+    algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
     algoritmo.ejectuarAlgoritmo()
     end_time = time.time()
 
     print(f'\n\n\nTiempo Maitane: {end_time-start_time}')
-    print(algoritmo.clusters)
     algoritmo.imprimir()
 
+
+
+    # CLUSTERING DBSCAN IMPLEMENTADO
     start_time = time.time()
-    algoritmo2 = DensityAlgorithm2(preProcess.documentVectors, epsilon=5, minPt=10)
+    algoritmo2 = DensityAlgorithm2(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
     algoritmo2.ejecutarAlgoritmo()
     end_time = time.time()
 
     print(f'\n\n\nTiempo Nagore: {end_time-start_time}')
-    print(algoritmo2.clusters)
     algoritmo2.imprimir()
+
+
+
+    # CLUSTERING DBSCAN ORIGINAL
+    start_time = time.time()
+    algoritmo3 = DBScanOriginal(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
+    algoritmo3.ejecutarAlgoritmo()
+    end_time = time.time()
+
+    print(f'\n\n\nTiempo DBScan: {end_time - start_time}')
+    algoritmo3.imprimir()
