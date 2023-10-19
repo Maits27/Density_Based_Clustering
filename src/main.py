@@ -10,6 +10,10 @@ from gensim.models.doc2vec import TaggedDocument
 from gensim.test.utils import get_tmpfile
 
 
+def distance(vector1, vector2):
+    return np.linalg.norm(vector1 - vector2)
+
+
 class PreProcessing:
 
     def __init__(self, path):
@@ -124,13 +128,82 @@ class DensityAlgorithm:
                 if self.clusters[j] == self.clustersValidos[i]:
                     self.clusters[j] = i
 
+    def imprimir(self):
+        total = 0
+        for cluster in range(min(self.clusters), max(self.clusters) + 1):
+            kont = 0
+            for i in self.clusters:
+                if i == cluster:
+                    kont += 1
+            if cluster == -1:
+                print(f'Hay un total de {kont} instancias que son ruido')
+            else:
+                print(f'Del cluster {cluster} hay {kont} instancias')
+            total = total + kont
+
+
+class DensityAlgorithm2:
+    def __init__(self, vectors, epsilon, minPt):
+        self.vectors = vectors  # DOCUMENTOS VECTORIZADOS
+        self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
+        self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
+        self.clusters = []
+
+    def get_neighbors(self, point):
+        neighbors = []
+        # i = indice de cada dato
+        # d = vetor de cada dato
+        for i, d in enumerate(self.vectors):
+            if distance(point, d) <= self.epsilon:
+                neighbors.append(i)
+        return neighbors
+
+    def expand_cluster(self, labels, i, neighbors, cluster_id):
+        labels[i]=cluster_id
+        i=0
+        while i< len(neighbors):
+            neighbor=neighbors[i]
+            if labels[neighbor] == -1:
+                labels[neighbor] = cluster_id
+            elif labels[neighbor] == 0:
+                labels[neighbor] = cluster_id
+                new_neighbors = self.get_neighbors(self.vectors[neighbor])
+                if len(new_neighbors) >= self.minPt:
+                    neighbors = neighbors + new_neighbors
+            i += 1
+
+    def ejecutarAlgoritmo(self):
+        labels = [0] * len(self.vectors)
+        cluster_id = 0
+        for i in range(len(self.vectors)):
+            if labels[i] == 0:
+                neighbors = self.get_neighbors(self.vectors[i])
+                if len(neighbors) < self.minPt:
+                    labels[i] = -1
+                else:
+                    cluster_id = cluster_id + 1
+                    self.expand_cluster(labels, i, neighbors, cluster_id)
+        self.clusters=labels
+        return labels
+
+    def imprimir(self):
+        total = 0
+        for cluster in range(min(self.clusters), max(self.clusters) + 1):
+            kont = 0
+            for i in self.clusters:
+                if i == cluster:
+                    kont += 1
+            if cluster == -1:
+                print(f'Hay un total de {kont} instancias que son ruido')
+            else:
+                print(f'Del cluster {cluster} hay {kont} instancias')
+            total = total + kont
 
 
 if __name__ == '__main__':
-
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/Suicide_Detection20000.csv')
+    preProcess = PreProcessing('../Datasets/corto.csv')
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()
@@ -141,3 +214,10 @@ if __name__ == '__main__':
     algoritmo.ejectuarAlgoritmo()
 
     print(algoritmo.clusters)
+    algoritmo.imprimir()
+
+    algoritmo2 = DensityAlgorithm2(preProcess.documentVectors, epsilon=5, minPt=10)
+    algoritmo2.ejecutarAlgoritmo()
+
+    print(algoritmo2.clusters)
+    algoritmo2.imprimir()
