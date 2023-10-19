@@ -24,8 +24,15 @@ def barridoDBSCAN(espilonList, minPtsList):
 
 def cargarTokens():
     with open('../tokens.tok', 'r') as file:
+        textoActual = []
         for line in file:
-            # TODO
-            print(line)
+            if line == '####\n':
+                textoActualAux = textoActual.copy()
+                textos_tokenizados.append(textoActualAux)
+                textoActual.clear()
+            else:
+                textoActual.append(line.replace('\n',''))
+    
+    print(len(textos_tokenizados))
 
 cargarTokens()
