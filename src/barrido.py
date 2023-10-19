@@ -21,18 +21,3 @@ def heuristicoEpsilonDBSCAN():
 
 def barridoDBSCAN(espilonList, minPtsList):
     DensityAlgorithm(vectors=texto_embedding, epsilon=1, minPt=1)
-
-def cargarTokens():
-    with open('../tokens.tok', 'r') as file:
-        textoActual = []
-        for line in file:
-            if line == '####\n':
-                textoActualAux = textoActual.copy()
-                textos_tokenizados.append(textoActualAux)
-                textoActual.clear()
-            else:
-                textoActual.append(line.replace('\n',''))
-    
-    print(len(textos_tokenizados))
-
-cargarTokens()

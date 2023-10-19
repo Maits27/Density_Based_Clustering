@@ -6,10 +6,12 @@ from tqdm import tqdm
 import time
 
 from sklearn.cluster import DBSCAN
+
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import TaggedDocument
 from gensim.test.utils import get_tmpfile
 
+from loadSaveData import saveEmbeddings, saveTokens
 
 def distance(vector1, vector2):
     return np.linalg.norm(vector1 - vector2)
@@ -42,10 +44,13 @@ class PreProcessing:
             lexical_tokens = [token.lemma_.lower() for token in doc if len(token.text) > 3 and token.is_alpha]
             self.textos_token.append(lexical_tokens)
 
+        #saveTokens(self.textos_token)
+
     def doc2vec(self):
+        dimensions = 150
 
         documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(self.textos_token)]
-        model = Doc2Vec(documents, vector_size=150, window=2, dm=1, epochs=100, workers=4)
+        model = Doc2Vec(documents, vector_size=dimensions, window=2, dm=1, epochs=100, workers=4)
 
         model.build_vocab(documents)
         model.train(documents, total_examples=model.corpus_count, epochs=model.epochs)
@@ -53,6 +58,8 @@ class PreProcessing:
         model.save(get_tmpfile("my_doc2vec_model"))
 
         self.documentVectors = [model.infer_vector(doc) for doc in self.textos_token]
+
+        saveEmbeddings(self.documentVectors, dimensions)
 
 
 class DensityAlgorithm:
