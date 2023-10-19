@@ -3,6 +3,7 @@ import spacy
 import emoji
 import numpy as np
 from tqdm import tqdm
+import time
 
 from sklearn.cluster import DBSCAN
 from gensim.models import Doc2Vec
@@ -210,15 +211,20 @@ if __name__ == '__main__':
     preProcess.doc2vec()
 
     # PROCESO DE CLUSTERING
-
+    start_time = time.time()
     algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=5, minPt=10)
     algoritmo.ejectuarAlgoritmo()
+    end_time = time.time()
 
+    print(f'\n\n\nTiempo Maitane: {end_time-start_time}')
     print(algoritmo.clusters)
     algoritmo.imprimir()
 
+    start_time = time.time()
     algoritmo2 = DensityAlgorithm2(preProcess.documentVectors, epsilon=5, minPt=10)
     algoritmo2.ejecutarAlgoritmo()
+    end_time = time.time()
 
+    print(f'\n\n\nTiempo Nagore: {end_time-start_time}')
     print(algoritmo2.clusters)
     algoritmo2.imprimir()
