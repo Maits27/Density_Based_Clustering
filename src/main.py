@@ -64,6 +64,13 @@ class DensityAlgorithm:
         self.alcanzables = []
         self.numCluster = -1
 
+    def ejectuarAlgoritmo(self):
+        self.buscarNucleos()
+        self.crearClusters()
+        self.seleccionClusters()
+        self.reclasificarInst()
+        self.reasignarLabelCluster()
+
     def buscarNucleos(self):
         for i, doc in enumerate(self.vectors):
             v = []
@@ -130,11 +137,7 @@ if __name__ == '__main__':
 
     # PROCESO DE CLUSTERING
 
-    algoritmo = DensityAlgorithm(preProcess.documentVectors, 5, 10)
-    algoritmo.buscarNucleos()
-    algoritmo.crearClusters()
-    algoritmo.seleccionClusters()
-    algoritmo.reclasificarInst()
-    algoritmo.reasignarLabelCluster()
+    algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=5, minPt=10)
+    algoritmo.ejectuarAlgoritmo()
 
     print(algoritmo.clusters)

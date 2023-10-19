@@ -1,23 +1,31 @@
-from sklearn.cluster import DBSCAN
-from gensim.models import Doc2Vec
-from gensim.models.doc2vec import TaggedDocument
-from gensim.test.utils import get_tmpfile
+import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_score
+from sklearn.neighbors import NearestNeighbors
+from main import DensityAlgorithm
+import numpy as np
+
+
+# TODO esto habrá que cogerlo de algún lado, no así hardcodeado
+dimensions = 150
+textos_tokenizados = []
+texto_embedding = []
+
+def heuristicoEpsilonDBSCAN():
+    nn = NearestNeighbors(n_neighbors=dimensions*2)
+    nn.fit(texto_embedding)
+    distances, idx = nn.kneighbors(texto_embedding)
+    distances = np.sort(distances, axis=0)
+    distances = distances[:,1]
+    plt.plot(distances)
+    plt.show()
 
 def barridoDBSCAN(espilonList, minPtsList):
-    document_vectors = [model.infer_vector(doc) for doc in textos_tokenizados]
+    DensityAlgorithm(vectors=texto_embedding, epsilon=1, minPt=1)
 
-    # Aplicar DBSCAN a los vectores de documentos
-    dbscan = DBSCAN(eps=2, min_samples=2, leaf_size=5)  # Ajusta los parámetros según tu caso
-    labels = dbscan.fit_predict(np.array(document_vectors))
+def cargarTokens():
+    with open('../tokens.tok', 'r') as file:
+        for line in file:
+            # TODO
+            print(line)
 
-    # Los resultados del clustering están en 'labels'
-    print("Etiquetas de clusters:", labels)
-
-
-documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(textos_tokenizados)]
-model = Doc2Vec(documents, vector_size=150, window=2, dm=1, epochs=100, workers=4)
-
-model.build_vocab(documents)
-model.train(documents, total_examples=model.corpus_count, epochs=model.epochs)
-
-model.save(get_tmpfile("my_doc2vec_model"))
+cargarTokens()
