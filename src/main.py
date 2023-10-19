@@ -66,43 +66,44 @@ class DensityAlgorithm:
         self.clusters = []  # CONJUNTO DE CLUSTERS
         self.clustersValidos = []  # CONJUNTO DE CLUSTERS SELECCIONADOS
         self.alcanzables = []
-        self.numCluster = -1
 
     def ejectuarAlgoritmo(self):
         self.buscarNucleos()
         self.crearClusters()
-        self.seleccionClusters()
+        '''self.seleccionClusters()
         self.reclasificarInst()
-        self.reasignarLabelCluster()
+        self.reasignarLabelCluster()'''
 
     def buscarNucleos(self):
         for i, doc in enumerate(self.vectors):
             v = []
             for j, doc2 in enumerate(self.vectors):
                 distEuc = np.linalg.norm(doc - doc2)
-                if distEuc <= self.epsilon:
+                if distEuc <= self.epsilon and j != i:
                     v.append((j, doc2))
             self.vecinos.append(v)
             if len(v) >= self.minPt:
                 self.nucleos.append((i, doc))
 
     def crearClusters(self):
-        for i in tqdm(range(len(self.vectors)), desc="Creando Clusters"):
-            self.clusters.append(-1)
+        # for i in tqdm(range(len(self.vectors)), desc="Creando Clusters"):
+        #     self.clusters.append(-1)
+        self.clusters = [-1] * len(self.vectors)
 
+        numCluster = -1
         nucleosPorVisitar = []
         for i, nucleo in self.nucleos:
             if self.clusters[i] == -1:
-                self.numCluster += 1
-                self.clusters[i] = self.numCluster
+                numCluster += 1
+                self.clusters[i] = numCluster
                 nucleosPorVisitar.append((i, nucleo))
                 while nucleosPorVisitar:
                     j, nucleo_actual = nucleosPorVisitar.pop()
                     for index, vecino in self.vecinos[j]:
                         if self.clusters[index] == -1:
-                            self.clusters[index] = self.numCluster
-                            if (j, nucleo_actual) in self.nucleos:
-                                nucleosPorVisitar.append((j, nucleo_actual))
+                            self.clusters[index] = numCluster
+                            if (index, vecino) in self.nucleos:
+                                nucleosPorVisitar.append((index, vecino))
 
     def seleccionClusters(self):
         for c in range(self.numCluster + 1):
@@ -159,10 +160,10 @@ class DensityAlgorithm2:
         return neighbors
 
     def expand_cluster(self, labels, i, neighbors, cluster_id):
-        labels[i]=cluster_id
-        i=0
-        while i< len(neighbors):
-            neighbor=neighbors[i]
+        labels[i] = cluster_id
+        i = 0
+        while i < len(neighbors):
+            neighbor = neighbors[i]
             if labels[neighbor] == -1:
                 labels[neighbor] = cluster_id
             elif labels[neighbor] == 0:
@@ -183,7 +184,7 @@ class DensityAlgorithm2:
                 else:
                     cluster_id = cluster_id + 1
                     self.expand_cluster(labels, i, neighbors, cluster_id)
-        self.clusters=labels
+        self.clusters = labels
         return labels
 
     def imprimir(self):
