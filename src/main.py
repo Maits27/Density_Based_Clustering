@@ -2,16 +2,19 @@ import pandas as pd
 import spacy
 import emoji
 import numpy as np
+from sklearn.manifold import TSNE
 from tqdm import tqdm
 import time
 
 from sklearn.cluster import DBSCAN
+
 
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import TaggedDocument
 from gensim.test.utils import get_tmpfile
 
 from loadSaveData import saveEmbeddings, saveTokens, loadEmbeddings
+from results import classToCluster, wordCloud, crearMatrizClassToCluster
 
 
 def distance(vector1, vector2):
@@ -25,12 +28,13 @@ class PreProcessing:
         self.textos = []
         self.textos_token = []
         self.documentVectors = []
+        self.data = None
 
     def cargarDatos(self):
 
-        data = pd.read_csv(self.datasetPath)
+        self.data = pd.read_csv(self.datasetPath)
 
-        for instancia in data.values:
+        for instancia in self.data.values:
             self.textos.append(instancia[1])
 
     def limpiezaDatos(self):
@@ -224,25 +228,23 @@ class DBScanOriginal:
             return self.numClusters
 
 
+
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/corto.csv')
+    preProcess = PreProcessing('../Datasets/Suicide_Detection5000.csv')
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()
-    # for i in [1000, 5000, 10000]:
-    #     preProcess = PreProcessing(f'../Datasets/Suicide_Detection{i}.csv')
-    #     preProcess.cargarDatos()
-    #     preProcess.limpiezaDatos()
-    #     preProcess.doc2vec()
     documentVectors = preProcess.documentVectors
+
+    documentVectors = TSNE(n_components=2, random_state=0).fit_transform(documentVectors)
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
-    epsilon = 5
-    minPt = 10
-    documentVectors = loadEmbeddings(1000, 150)
+    epsilon = 25
+    minPt = 1
+    #documentVectors = loadEmbeddings(1000, 150)
     # CLUSTERING ALTERNATIVO
     start_time = time.time()
     algoritmo = DensityAlgorithm(documentVectors, epsilon=epsilon, minPt=minPt)
@@ -251,6 +253,9 @@ if __name__ == '__main__':
 
     print(f'\n\n\nTiempo Maitane: {end_time-start_time}')
     algoritmo.imprimir()
+
+    classToCluster(preProcess.data, algoritmo.clusters)
+    wordCloud(algoritmo.clusters, preProcess.textos_token)
 
 
 
@@ -263,6 +268,9 @@ if __name__ == '__main__':
     print(f'\n\n\nTiempo Nagore: {end_time-start_time}')
     algoritmo2.imprimir()
 
+    classToCluster(preProcess.data, algoritmo.clusters)
+    wordCloud(algoritmo.clusters, preProcess.textos_token)
+
 
 
     # CLUSTERING DBSCAN ORIGINAL
@@ -272,4 +280,7 @@ if __name__ == '__main__':
     end_time = time.time()
 
     print(f'\n\n\nTiempo DBScan: {end_time - start_time}')
+
     algoritmo3.imprimir()
+    classToCluster(preProcess.data, algoritmo.clusters)
+    wordCloud(algoritmo.clusters, preProcess.textos_token)
