@@ -215,7 +215,7 @@ class DBScanOriginal:
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/corto.csv')
+    preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv')
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()
