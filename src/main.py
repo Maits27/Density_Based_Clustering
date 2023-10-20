@@ -44,7 +44,7 @@ class PreProcessing:
             lexical_tokens = [token.lemma_.lower() for token in doc if len(token.text) > 3 and token.is_alpha]
             self.textos_token.append(lexical_tokens)
 
-        saveTokens(self.textos_token) # TODO LO HE COMENTADO PORQUE OCUPA MUCHO
+        saveTokens(self.textos_token)
 
     def doc2vec(self):
         dimensions = 150
@@ -59,7 +59,7 @@ class PreProcessing:
 
         self.documentVectors = [model.infer_vector(doc) for doc in self.textos_token]
 
-        saveEmbeddings(self.documentVectors, dimensions) # TODO LO HE COMENTADO PORQUE OCUPA MUCHO
+        saveEmbeddings(self.documentVectors, dimensions)
 
 
 class DensityAlgorithm:
@@ -192,6 +192,7 @@ class DBScanOriginal:
         self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
         self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
         self.clusters = []
+        self.numClusters = 0
 
     def ejecutarAlgoritmo(self):
         # Aplicar DBSCAN a los vectores de documentos
@@ -210,6 +211,15 @@ class DBScanOriginal:
             else:
                 print(f'Del cluster {cluster} hay {kont} instancias')
             total = total + kont
+
+    def getNoiseInstances(self):
+        return self.clusters.count(-1)
+
+    def getNumClusters(self):
+        if self.numClusters != 0: return self.numClusters
+        else:
+            self.numClusters = len(set(self.clusters))- (1 if -1 in self.clusters else 0)
+            return self.numClusters
 
 
 if __name__ == '__main__':

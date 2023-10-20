@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
-from main import DensityAlgorithm
+from main import DensityAlgorithm, DBScanOriginal
 import numpy as np
 from loadSaveData import loadEmbeddings
 import csv
@@ -36,19 +36,20 @@ def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
     # Barrido
     for eps in espilonList:
         for minPts in minPtsList:
-            dbscan = DensityAlgorithm(vectors=embeddingVectors, epsilon=eps, minPt=minPts)
+            dbscan = DBScanOriginal(vectors=embeddingVectors, epsilon=eps, minPt=minPts)
             dbscan.ejectuarAlgoritmo()
-            dbscan.imprimir()
-            silhouette = silhouette_score(embeddingVectors, dbscan.clusters)
-            print(silhouette)
-            saveInExcel(nInstances, dimension, eps, minPts, 3929, silhouette)
+            numClusters = dbscan.getNumClusters()
+            if numClusters != 1:
+                silhouette = silhouette_score(embeddingVectors, dbscan.clusters)
+            noiseInstances = dbscan.getNoiseInstances()
+            saveInCSV(nInstances, dimension, eps, minPts, noiseInstances, silhouette)
 
 
 def barridoDoc2Vec(dimensionList):
     pass
 
 
-def saveInExcel(nInstances, dimension, espilon, minPts, nClusters, silhouette):
+def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
     with open('../Barridos.csv', 'a') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
