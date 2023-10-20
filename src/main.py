@@ -198,7 +198,7 @@ class DBScanOriginal:
         self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
         self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
         self.clusters = []
-        self.numClusters = 0
+        self.numClusters = None
 
     def ejecutarAlgoritmo(self):
         # Aplicar DBSCAN a los vectores de documentos
@@ -222,9 +222,9 @@ class DBScanOriginal:
         return np.count_nonzero(self.clusters == -1)
 
     def getNumClusters(self):
-        if self.numClusters != 0: return self.numClusters
+        if self.numClusters is not None: return self.numClusters
         else:
-            self.numClusters = len(set(self.clusters))- (1 if -1 in self.clusters else 0)
+            self.numClusters = len(set(self.clusters) - {-1})
             return self.numClusters
 
 

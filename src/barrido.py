@@ -6,19 +6,21 @@ import numpy as np
 from loadSaveData import loadEmbeddings
 import csv
 import optuna
+import plotly.express as px
 
 optunaNCluster = 0
+
 
 def heuristicoEpsilonDBSCAN(nInstances, dimension):
     # Load vectors
     embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
 
     # Get distances using k-NN
-    nn = NearestNeighbors(n_neighbors=dimension*2)
+    nn = NearestNeighbors(n_neighbors=dimension * 2)
     nn.fit(embeddingVectors)
     distances, idx = nn.kneighbors(embeddingVectors)
     distances = np.sort(distances, axis=0)
-    distances = distances[:,1]
+    distances = distances[:, 1]
 
     # Plot
     plt.plot(distances)
@@ -30,6 +32,20 @@ def heuristicoEpsilonDBSCAN(nInstances, dimension):
     plt.savefig(f'../img/elbowMethod/eps{nInstances}dim{dimension}')
     plt.show()
 
+
+def distance_distribution(nInstances, dimension):
+    pares_calculados = set()
+    distancias = []
+    embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
+    for i, doc in enumerate(embeddingVectors):
+        for j, doc2 in enumerate(embeddingVectors):
+            if j != i:
+                if (pair := '_'.join(sorted([str(i), str(j)]))) not in pares_calculados:
+                    distancias.append(np.linalg.norm(doc - doc2))
+                    pares_calculados.add(pair)
+
+    fig = px.histogram(x=distancias, nbins=20)
+    fig.show()
 
 def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
     # Load vectors
@@ -50,11 +66,11 @@ def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
                 silhouette = 0
             noiseInstances = dbscan.getNoiseInstances()
 
-            saveInCSV(nInstances=nInstances, 
-                      dimension=dimension, 
-                      espilon=eps, 
-                      minPts=minPts, 
-                      nClusters=numClusters, 
+            saveInCSV(nInstances=nInstances,
+                      dimension=dimension,
+                      espilon=eps,
+                      minPts=minPts,
+                      nClusters=numClusters,
                       silhouette=silhouette)
 
 
@@ -63,52 +79,72 @@ def barridoDoc2Vec(dimensionList):
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open('../Barridos.csv', 'a') as file:
+    with open('../Barridos_2.csv', 'a') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
 
+def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, nClusters, silhouette):
+    with open('../Barridos_2.csv', 'w', encoding='utf8') as file:
+        file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tnClusters\tMetric\n')
+        file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{nClusters}\t{silhouette}')
 
-def objective(trial, loadedEmbedding):    
-    epsilon = trial.suggest_float('epsilon', 0.1, 10.0)
-    minPt = trial.suggest_int('minPt', 150, 300)
-    
+
+def objective(trial, loadedEmbedding):
+    epsilon = trial.suggest_float('epsilon', 2, 7.0, step=0.001)
+    minPt = trial.suggest_int('minPt', 1, 10)
+
+
     # Utiliza los valores sugeridos por Optuna para la ejecución
     algoritmo = DBScanOriginal(loadedEmbedding, epsilon=epsilon, minPt=minPt)
     algoritmo.ejecutarAlgoritmo()
 
     optunaNCluster = algoritmo.getNumClusters()
-    
-    # Devuelve el número de instancias de ruido (puedes usar otra métrica)
-    if algoritmo.getNumClusters() <= 1: return 0
-    else: return silhouette_score(loadedEmbedding, algoritmo.clusters)
-    
-    
+
+    # TODO: Calcular media puntos cluster
+
+    if algoritmo.getNumClusters() != 0:
+        media_puntos_cluster = (np.sum(algoritmo.clusters != -1))/algoritmo.getNumClusters()
+    else:
+        media_puntos_cluster = 0
+
+        # Devuelve el número de instancias de ruido (puedes usar otra métrica)
+    if optunaNCluster <= 1:
+        return 0, optunaNCluster, media_puntos_cluster
+    else:
+        return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, 0, media_puntos_cluster
+
+
 def barridoDBSCANOPtuna(nInstances, dimension):
     loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension)
 
     # Optimiza para minimizar el ruido
-    study = optuna.create_study(direction='maximize')  
-    
-    # Realiza la optimización de los parámetros
-    study.optimize(lambda trial: objective(trial, loadedEmbedding), n_trials=1000)
-    
-    # Obtiene los mejores parámetros encontrados
-    best_epsilon = study.best_params['epsilon']
-    best_minPt = study.best_params['minPt']
-    best_silhouette = study.best_value
+    study = optuna.create_study(directions=['maximize', 'maximize', 'maximize'])
 
-    saveInCSV(nInstances=nInstances, 
-              dimension=dimension, 
-              espilon=best_epsilon, 
-              minPts=best_minPt, 
+    # Realiza la optimización de los parámetros
+    study.optimize(lambda trial: objective(trial, loadedEmbedding), n_trials=100)
+
+    # Obtiene los mejores parámetros encontrados
+    best_trial = max(study.best_trials, key=lambda t: t.values[1])
+    best_epsilon = best_trial.params['epsilon']
+    best_minPt = best_trial.params['minPt']
+
+    best_silhouette, optunaNCluster, best_media_puntos_cluster = best_trial.values
+
+
+    saveInCSV2(nInstances=nInstances,
+              dimension=dimension,
+              espilon=best_epsilon,
+              minPts=best_minPt,
+              media_puntos_cluster=best_media_puntos_cluster,
               nClusters=optunaNCluster,
               silhouette=best_silhouette)
 
 
-#barridoDBSCANOPtuna(nInstances=1000, dimension=150)
-print(len(loadEmbeddings(length=1000, dimension=150)))
-barridoDBSCAN(nInstances=1000, 
-              dimension=150, 
-              espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500], 
-              minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
-#heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
+barridoDBSCANOPtuna(nInstances=1000, dimension=150)
+# print(len(loadEmbeddings(length=1000, dimension=150)))
+# barridoDBSCAN(nInstances=1000,
+#               dimension=150,
+#               espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
+#               minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
+# heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
+# distance_distribution(nInstances=1000, dimension=150)
