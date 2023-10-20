@@ -44,7 +44,7 @@ class PreProcessing:
             lexical_tokens = [token.lemma_.lower() for token in doc if len(token.text) > 3 and token.is_alpha]
             self.textos_token.append(lexical_tokens)
 
-        #saveTokens(self.textos_token)
+        saveTokens(self.textos_token) # TODO LO HE COMENTADO PORQUE OCUPA MUCHO
 
     def doc2vec(self):
         dimensions = 150
@@ -59,7 +59,7 @@ class PreProcessing:
 
         self.documentVectors = [model.infer_vector(doc) for doc in self.textos_token]
 
-        saveEmbeddings(self.documentVectors, dimensions)
+        saveEmbeddings(self.documentVectors, dimensions) # TODO LO HE COMENTADO PORQUE OCUPA MUCHO
 
 
 class DensityAlgorithm:
@@ -215,7 +215,7 @@ class DBScanOriginal:
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/Suicide_Detection20000.csv')
+    preProcess = PreProcessing('../Datasets/corto.csv')
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()

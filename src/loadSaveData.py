@@ -1,12 +1,17 @@
 import numpy as np
+from pathlib import Path
+
 
 def saveTokens(textosTokenizados):
     # TODO faltan los ####. NO FUNCIONA
     length = len(textosTokenizados)
-
-    with open(f'../out/tokens/tokens{length}.tok', "w", encoding="utf-8") as file:
-        for token in textosTokenizados:
-            file.write(token.text + "\n")
+    ruta = Path(f'../out/tokens/tokens{length}.tok')
+    if not ruta.exists():
+        with open(ruta, "w", encoding="utf-8") as file:
+            for texto in textosTokenizados:
+                file.write('####\n')
+                for token in texto:
+                    file.write(token + "\n")
 
 
 def loadTokens(length):
@@ -26,9 +31,12 @@ def loadTokens(length):
 
 
 def saveEmbeddings(textEmbeddings, dimension):
-    print('Guardando embeddings...')
+    print('Guardando embeddings...') # TODO lo he cambiado para que no lo haga siempre (solo si no esta creado ya)
     length = len(textEmbeddings)
-    np.save(f'../out/embeddings/embeddings{length}dim{dimension}.npy', textEmbeddings)
+    ruta = Path(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+    if not ruta.exists():
+        np.save(ruta, textEmbeddings)
+
 
 
 def loadEmbeddings(length, dimension):

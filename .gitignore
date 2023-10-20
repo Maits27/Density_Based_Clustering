@@ -1,4 +1,5 @@
 Datasets/*
+!Datasets/corto*
 
 # Ignore pycache
 __pycache__
