@@ -219,7 +219,7 @@ class DBScanOriginal:
             total = total + kont
 
     def getNoiseInstances(self):
-        return self.clusters.count(-1)
+        return np.count_nonzero(self.clusters == -1)
 
     def getNumClusters(self):
         if self.numClusters != 0: return self.numClusters
