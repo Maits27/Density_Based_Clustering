@@ -227,17 +227,22 @@ class DBScanOriginal:
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    # preProcess = PreProcessing('../Datasets/corto.csv')
-    # preProcess.cargarDatos()
-    # preProcess.limpiezaDatos()
-    # preProcess.doc2vec()
-    # documentVectors = preProcess.documentVectors
+    preProcess = PreProcessing('../Datasets/corto.csv')
+    preProcess.cargarDatos()
+    preProcess.limpiezaDatos()
+    preProcess.doc2vec()
+    # for i in [1000, 5000, 10000]:
+    #     preProcess = PreProcessing(f'../Datasets/Suicide_Detection{i}.csv')
+    #     preProcess.cargarDatos()
+    #     preProcess.limpiezaDatos()
+    #     preProcess.doc2vec()
+    documentVectors = preProcess.documentVectors
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
     epsilon = 5
     minPt = 10
-    documentVectors = loadEmbeddings(76, 150)
+    documentVectors = loadEmbeddings(1000, 150)
     # CLUSTERING ALTERNATIVO
     start_time = time.time()
     algoritmo = DensityAlgorithm(documentVectors, epsilon=epsilon, minPt=minPt)
