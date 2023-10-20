@@ -41,7 +41,7 @@ class PreProcessing:
             texto = emoji.demojize(texto)  # Emojis a texto
             texto = texto.replace(':', ' ').replace('filler', ' ').replace('filer', ' ').replace('_', ' ')
             doc = nlp(texto)
-            lexical_tokens = [token.lemma_.lower() for token in doc if len(token.text) > 3 and token.is_alpha]
+            lexical_tokens = [token.lemma_.lower() for token in doc if len(token.text) > 3 and token.is_alpha and not token.is_stop]
             self.textos_token.append(lexical_tokens)
 
         saveTokens(self.textos_token)
