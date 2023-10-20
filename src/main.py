@@ -11,7 +11,8 @@ from gensim.models import Doc2Vec
 from gensim.models.doc2vec import TaggedDocument
 from gensim.test.utils import get_tmpfile
 
-from loadSaveData import saveEmbeddings, saveTokens
+from loadSaveData import saveEmbeddings, saveTokens, loadEmbeddings
+
 
 def distance(vector1, vector2):
     return np.linalg.norm(vector1 - vector2)
@@ -83,7 +84,7 @@ class DensityAlgorithm:
         for i, _ in enumerate(self.vectors):
             v = []
             for j, _ in enumerate(self.vectors):
-                if self.distancias.get(frozenset([i, j])) <= self.epsilon and j != i:
+                if j != i and self.distancias.get(frozenset([i, j])) <= self.epsilon:
                     v.append(j)
             self.vecinos.append(v)
             if len(v) >= self.minPt:
@@ -110,9 +111,10 @@ class DensityAlgorithm:
     def calcular_distancias(self):
         for i, doc in enumerate(self.vectors):
             for j, doc2 in enumerate(self.vectors):
-                if frozenset([i, j]) not in self.distancias:
-                    distEuc = np.linalg.norm(doc - doc2)
-                    self.distancias[frozenset([i, j])] = distEuc
+                if j != i:
+                    if frozenset([i, j]) not in self.distancias:
+                        distEuc = np.linalg.norm(doc - doc2)
+                        self.distancias[frozenset([i, j])] = distEuc
         print(f'LAS DISTANCIAS SUMAN: {len(self.distancias)}')
 
     def imprimir(self):
@@ -225,19 +227,20 @@ class DBScanOriginal:
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv')
-    preProcess.cargarDatos()
-    preProcess.limpiezaDatos()
-    preProcess.doc2vec()
+    # preProcess = PreProcessing('../Datasets/corto.csv')
+    # preProcess.cargarDatos()
+    # preProcess.limpiezaDatos()
+    # preProcess.doc2vec()
+    # documentVectors = preProcess.documentVectors
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
     epsilon = 5
     minPt = 10
-
+    documentVectors = loadEmbeddings(76, 150)
     # CLUSTERING ALTERNATIVO
     start_time = time.time()
-    algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
+    algoritmo = DensityAlgorithm(documentVectors, epsilon=epsilon, minPt=minPt)
     algoritmo.ejectuarAlgoritmo()
     end_time = time.time()
 
@@ -248,7 +251,7 @@ if __name__ == '__main__':
 
     # CLUSTERING DBSCAN IMPLEMENTADO
     start_time = time.time()
-    algoritmo2 = DensityAlgorithm2(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
+    algoritmo2 = DensityAlgorithm2(documentVectors, epsilon=epsilon, minPt=minPt)
     algoritmo2.ejecutarAlgoritmo()
     end_time = time.time()
 
@@ -259,7 +262,7 @@ if __name__ == '__main__':
 
     # CLUSTERING DBSCAN ORIGINAL
     start_time = time.time()
-    algoritmo3 = DBScanOriginal(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
+    algoritmo3 = DBScanOriginal(documentVectors, epsilon=epsilon, minPt=minPt)
     algoritmo3.ejecutarAlgoritmo()
     end_time = time.time()
 
