@@ -296,7 +296,6 @@ if __name__ == '__main__':
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()
-    documentVectors = preProcess.documentVectors
 
     #documentVectors = TSNE(n_components=2, random_state=0).fit_transform(documentVectors)
 
@@ -306,9 +305,9 @@ if __name__ == '__main__':
     minPt = 3
     # preProcess.documentVectors = loadEmbeddings(10000, 150)
     # preProcess.textos_token = loadTokens(10000)
-    llamar_al_metodo(0, documentVectors, epsilon, minPt) # DBSCAN
-    # llamar_al_metodo(1, documentVectors, epsilon, minPt) # NAGORE
-    # llamar_al_metodo(2, documentVectors, epsilon, minPt) # MAITANE
+    llamar_al_metodo(0, preProcess, epsilon, minPt) # DBSCAN
+    # llamar_al_metodo(1, preProcess, epsilon, minPt) # NAGORE
+    # llamar_al_metodo(2, preProcess, epsilon, minPt) # MAITANE
     #llamar_al_metodo(3, preProcess, epsilon, minPt) # KMEANS
 
 

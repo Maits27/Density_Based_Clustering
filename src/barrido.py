@@ -36,6 +36,7 @@ def heuristicoEpsilonDBSCAN(nInstances, dimension):
 def distance_distribution(nInstances, dimension):
     pares_calculados = set()
     distancias = []
+    ema =  [0] * 10
     embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
     for i, doc in enumerate(embeddingVectors):
         for j, doc2 in enumerate(embeddingVectors):
@@ -43,7 +44,11 @@ def distance_distribution(nInstances, dimension):
                 if (pair := '_'.join(sorted([str(i), str(j)]))) not in pares_calculados:
                     distancias.append(np.linalg.norm(doc - doc2))
                     pares_calculados.add(pair)
-
+    for dist in distancias:
+        index = int(dist/5)
+        if index>10: ema[9] = ema[9]+1
+        else: ema[index] = ema[index]+1
+    print(f'LOS TARTES DE LAS DISTANCIAS: {ema}')
     fig = px.histogram(x=distancias, nbins=20)
     fig.show()
 
@@ -79,18 +84,18 @@ def barridoDoc2Vec(dimensionList):
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open('../Barridos_6.csv', 'a') as file:
+    with open('../Barridos_7.csv', 'a') as file:
         writer = csv.writer(file, delimiter='|')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
 
 def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, nClusters, silhouette):
-    with open('../Barridos_6.csv', 'w', encoding='utf8') as file:
+    with open('../Barridos_7.csv', 'w', encoding='utf8') as file:
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{nClusters}\t{silhouette}')
 
 
 def objective(trial, loadedEmbedding):
-    epsilon = trial.suggest_float('epsilon', 10, 20.0, step=0.001)
+    epsilon = trial.suggest_float('epsilon', 5, 20.0, step=0.001)
     minPt = trial.suggest_int('minPt', 1, 30)
 
 
@@ -121,7 +126,7 @@ def barridoDBSCANOPtuna(nInstances, dimension):
     study = optuna.create_study(directions=['maximize', 'minimize', 'maximize'])
 
     # Realiza la optimización de los parámetros
-    study.optimize(lambda trial: objective(trial, loadedEmbedding), n_trials=100)
+    study.optimize(lambda trial: objective(trial, loadedEmbedding), n_trials=1000)
 
     # Obtiene los mejores parámetros encontrados
     best_trial = max(study.best_trials, key=lambda t: t.values[1])
@@ -140,7 +145,7 @@ def barridoDBSCANOPtuna(nInstances, dimension):
               silhouette=best_silhouette)
 
 
-barridoDBSCANOPtuna(nInstances=5000, dimension=150)
+barridoDBSCANOPtuna(nInstances=10000, dimension=150)
 
 # print(len(loadEmbeddings(length=1000, dimension=150)))
 # barridoDBSCAN(nInstances=1000,
@@ -148,4 +153,4 @@ barridoDBSCANOPtuna(nInstances=5000, dimension=150)
 #               espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
 #               minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
 # heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
-#distance_distribution(nInstances=5000, dimension=150)
+#distance_distribution(nInstances=10000, dimension=150)
