@@ -79,19 +79,19 @@ def barridoDoc2Vec(dimensionList):
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open('../Barridos_3.csv', 'a') as file:
+    with open('../Barridos_6.csv', 'a') as file:
         writer = csv.writer(file, delimiter='|')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
 
 def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, nClusters, silhouette):
-    with open('../Barridos_3.csv', 'w', encoding='utf8') as file:
+    with open('../Barridos_6.csv', 'w', encoding='utf8') as file:
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{nClusters}\t{silhouette}')
 
 
 def objective(trial, loadedEmbedding):
-    epsilon = trial.suggest_float('epsilon', 2, 12.0, step=0.001)
-    minPt = trial.suggest_int('minPt', 1, 10)
+    epsilon = trial.suggest_float('epsilon', 10, 20.0, step=0.001)
+    minPt = trial.suggest_int('minPt', 1, 30)
 
 
     # Utiliza los valores sugeridos por Optuna para la ejecución
@@ -109,16 +109,16 @@ def objective(trial, loadedEmbedding):
 
         # Devuelve el número de instancias de ruido (puedes usar otra métrica)
     if optunaNCluster <= 1:
-        return 0, optunaNCluster, media_puntos_cluster
+        return -1, 10000, 0
     else:
-        return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, 0, media_puntos_cluster
+        return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, media_puntos_cluster
 
 
 def barridoDBSCANOPtuna(nInstances, dimension):
     loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension)
 
     # Optimiza para minimizar el ruido
-    study = optuna.create_study(directions=['maximize', 'maximize', 'maximize'])
+    study = optuna.create_study(directions=['maximize', 'minimize', 'maximize'])
 
     # Realiza la optimización de los parámetros
     study.optimize(lambda trial: objective(trial, loadedEmbedding), n_trials=100)
@@ -128,7 +128,7 @@ def barridoDBSCANOPtuna(nInstances, dimension):
     best_epsilon = best_trial.params['epsilon']
     best_minPt = best_trial.params['minPt']
 
-    best_silhouette, optunaNCluster, best_media_puntos_cluster = best_trial.values
+    best_silhouette, optunaNCluster, best_media_puntos_cluster,  = best_trial.values
 
 
     saveInCSV2(nInstances=nInstances,

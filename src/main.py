@@ -302,8 +302,8 @@ if __name__ == '__main__':
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
-    epsilon = 25
-    minPt = 1
+    epsilon = 15
+    minPt = 3
     # preProcess.documentVectors = loadEmbeddings(10000, 150)
     # preProcess.textos_token = loadTokens(10000)
     llamar_al_metodo(0, documentVectors, epsilon, minPt) # DBSCAN
