@@ -7,13 +7,13 @@ from tqdm import tqdm
 import time
 
 from sklearn.cluster import DBSCAN
-
+from sklearn.cluster import KMeans
 
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import TaggedDocument
 from gensim.test.utils import get_tmpfile
 
-from loadSaveData import saveEmbeddings, saveTokens, loadEmbeddings
+from loadSaveData import saveEmbeddings, saveTokens, loadEmbeddings, loadTokens
 from results import classToCluster, wordCloud, crearMatrizClassToCluster
 
 
@@ -227,60 +227,94 @@ class DBScanOriginal:
             self.numClusters = len(set(self.clusters) - {-1})
             return self.numClusters
 
+def llamar_al_metodo(metodo, preProcess, epsilon, minPt):
+    if metodo == 0:
+        # CLUSTERING DBSCAN ORIGINAL
+        start_time = time.time()
+        algoritmo3 = DBScanOriginal(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
+        algoritmo3.ejecutarAlgoritmo()
+        end_time = time.time()
+
+        print(f'\n\n\nTiempo DBScan: {end_time - start_time}')
+
+        algoritmo3.imprimir()
+        classToCluster(preProcess.data, algoritmo3.clusters)
+        wordCloud(algoritmo3.clusters, preProcess.textos_token)
+
+    elif metodo == 1:
+        # CLUSTERING DBSCAN IMPLEMENTADO
+        start_time = time.time()
+        algoritmo2 = DensityAlgorithm2(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
+        algoritmo2.ejecutarAlgoritmo()
+        end_time = time.time()
+
+        print(f'\n\n\nTiempo Nagore: {end_time - start_time}')
+        algoritmo2.imprimir()
+
+        classToCluster(preProcess.data, algoritmo2.clusters)
+        wordCloud(algoritmo2.clusters, preProcess.textos_token)
+
+    elif metodo == 2:
+        # CLUSTERING ALTERNATIVO
+        start_time = time.time()
+        algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
+        algoritmo.ejectuarAlgoritmo()
+        end_time = time.time()
+
+        print(f'\n\n\nTiempo Maitane: {end_time - start_time}')
+        algoritmo.imprimir()
+
+        classToCluster(preProcess.data, algoritmo.clusters)
+        wordCloud(algoritmo.clusters, preProcess.textos_token)
+
+    elif metodo == 3:
+        kmeans = KMeans(n_clusters=5, random_state=42, n_init=10)
+        # Etiquetas predichas para cada instancia de X_train:
+        kmeansLabels = kmeans.fit_predict(preProcess.documentVectors)
+        classToCluster(preProcess.data, kmeansLabels)
+        wordCloud(kmeansLabels, preProcess.textos_token)
+        total = 0
+        for cluster in range(min(kmeansLabels), max(kmeansLabels) + 1):
+            kont = 0
+            for i in kmeansLabels:
+                if i == cluster:
+                    kont += 1
+            if cluster == -1:
+                print(f'Hay un total de {kont} instancias que son ruido')
+            else:
+                print(f'Del cluster {cluster} hay {kont} instancias')
+            total = total + kont
+    else:
+        pass
+
 
 
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/Suicide_Detection5000.csv')
+    preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv')
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()
     documentVectors = preProcess.documentVectors
 
-    documentVectors = TSNE(n_components=2, random_state=0).fit_transform(documentVectors)
+    #documentVectors = TSNE(n_components=2, random_state=0).fit_transform(documentVectors)
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
     epsilon = 25
     minPt = 1
-    #documentVectors = loadEmbeddings(1000, 150)
-    # CLUSTERING ALTERNATIVO
-    start_time = time.time()
-    algoritmo = DensityAlgorithm(documentVectors, epsilon=epsilon, minPt=minPt)
-    algoritmo.ejectuarAlgoritmo()
-    end_time = time.time()
-
-    print(f'\n\n\nTiempo Maitane: {end_time-start_time}')
-    algoritmo.imprimir()
-
-    classToCluster(preProcess.data, algoritmo.clusters)
-    wordCloud(algoritmo.clusters, preProcess.textos_token)
+    # preProcess.documentVectors = loadEmbeddings(10000, 150)
+    # preProcess.textos_token = loadTokens(10000)
+    llamar_al_metodo(0, documentVectors, epsilon, minPt) # DBSCAN
+    # llamar_al_metodo(1, documentVectors, epsilon, minPt) # NAGORE
+    # llamar_al_metodo(2, documentVectors, epsilon, minPt) # MAITANE
+    #llamar_al_metodo(3, preProcess, epsilon, minPt) # KMEANS
 
 
 
-    # CLUSTERING DBSCAN IMPLEMENTADO
-    start_time = time.time()
-    algoritmo2 = DensityAlgorithm2(documentVectors, epsilon=epsilon, minPt=minPt)
-    algoritmo2.ejecutarAlgoritmo()
-    end_time = time.time()
-
-    print(f'\n\n\nTiempo Nagore: {end_time-start_time}')
-    algoritmo2.imprimir()
-
-    classToCluster(preProcess.data, algoritmo.clusters)
-    wordCloud(algoritmo.clusters, preProcess.textos_token)
 
 
 
-    # CLUSTERING DBSCAN ORIGINAL
-    start_time = time.time()
-    algoritmo3 = DBScanOriginal(documentVectors, epsilon=epsilon, minPt=minPt)
-    algoritmo3.ejecutarAlgoritmo()
-    end_time = time.time()
 
-    print(f'\n\n\nTiempo DBScan: {end_time - start_time}')
 
-    algoritmo3.imprimir()
-    classToCluster(preProcess.data, algoritmo.clusters)
-    wordCloud(algoritmo.clusters, preProcess.textos_token)

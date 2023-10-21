@@ -79,18 +79,18 @@ def barridoDoc2Vec(dimensionList):
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open('../Barridos_2.csv', 'a') as file:
-        writer = csv.writer(file, delimiter=',')
+    with open('../Barridos_3.csv', 'a') as file:
+        writer = csv.writer(file, delimiter='|')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
 
 def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, nClusters, silhouette):
-    with open('../Barridos_2.csv', 'w', encoding='utf8') as file:
+    with open('../Barridos_3.csv', 'w', encoding='utf8') as file:
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{nClusters}\t{silhouette}')
 
 
 def objective(trial, loadedEmbedding):
-    epsilon = trial.suggest_float('epsilon', 2, 7.0, step=0.001)
+    epsilon = trial.suggest_float('epsilon', 2, 12.0, step=0.001)
     minPt = trial.suggest_int('minPt', 1, 10)
 
 
@@ -102,7 +102,7 @@ def objective(trial, loadedEmbedding):
 
     # TODO: Calcular media puntos cluster
 
-    if algoritmo.getNumClusters() != 0:
+    if algoritmo.getNumClusters() > 1:
         media_puntos_cluster = (np.sum(algoritmo.clusters != -1))/algoritmo.getNumClusters()
     else:
         media_puntos_cluster = 0
@@ -140,11 +140,12 @@ def barridoDBSCANOPtuna(nInstances, dimension):
               silhouette=best_silhouette)
 
 
-barridoDBSCANOPtuna(nInstances=1000, dimension=150)
+barridoDBSCANOPtuna(nInstances=5000, dimension=150)
+
 # print(len(loadEmbeddings(length=1000, dimension=150)))
 # barridoDBSCAN(nInstances=1000,
 #               dimension=150,
 #               espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
 #               minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
 # heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
-# distance_distribution(nInstances=1000, dimension=150)
+#distance_distribution(nInstances=5000, dimension=150)

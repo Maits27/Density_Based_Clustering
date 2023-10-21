@@ -3,7 +3,6 @@ from pathlib import Path
 
 
 def saveTokens(textosTokenizados):
-    # TODO faltan los ####. NO FUNCIONA
     length = len(textosTokenizados)
     ruta = Path(f'../out/tokens/tokens{length}.tok')
     if not ruta.exists():

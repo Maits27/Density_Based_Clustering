@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import confusion_matrix
 from wordcloud import WordCloud
+import matplotlib.colors as mcolors
 
 def crearMatrizClassToCluster(data, clusters):
     clusters_validos = set(clusters)
@@ -17,44 +19,50 @@ def crearMatrizClassToCluster(data, clusters):
                 class_to_cluster[c][1] += 1
     return class_to_cluster
 
+def clase_a_num(data):
+    clases = data['class'].copy()
+    res = []
+    for c in clases:
+        if c.__eq__('suicide'):
+            res.append(0)
+        else:
+            res.append(1)
+    return res
 def classToCluster(data, clusters):
-    nombres_clases = ['suicide', 'non-suicide']
-    class_to_cluster = crearMatrizClassToCluster(data, clusters)
+    cm = confusion_matrix(clusters, clase_a_num(data))
     # Supongamos que tienes 20 grupos y 2 clases
     num_groups = len(set(clusters))
-    num_classes = len(nombres_clases)
-    # Crear una matriz de ejemplo con las instancias de clases en cada grupo
-    # Esto es solo un ejemplo, debes proporcionar tus datos reales
+    num_classes = len(nombres_clases := ['suicide', 'non-suicide'])
 
-    # Definir colores personalizados (azul y verde claros)
-    light_blue = (0.6, 0.8, 1.0)  # Color azul claro
-    light_green = (0.6, 1.0, 0.6)  # Color verde claro
+    if num_classes < num_groups:
+        cm = cm[:, :num_classes]
+    elif num_groups < num_classes:
+        cm = cm[:num_classes, :]
 
-    # Crear una figura y mostrar la matriz con los colores personalizados
     plt.figure(figsize=(10, 6))
-    plt.imshow(class_to_cluster, cmap='viridis', aspect='auto', interpolation='nearest', vmin=0, vmax=10)
+    plt.imshow(cm, cmap=plt.cm.Blues, aspect='auto', interpolation='nearest', vmin=0, vmax=10)
 
     # Personalizar el eje x y el eje y para mostrar los grupos y las clases
-    plt.xticks(range(num_classes), [f'Clase {nombres_clases[i]}' for i in range(num_classes)])
-    plt.yticks(range(num_groups), [f'{clusters[i]}' for i in range(num_groups)])
+    plt.xticks(np.arange(num_classes), [f'Class {nombres_clases[i]}' for i in range(num_classes)])
+    plt.yticks(np.arange(num_groups), np.unique(clusters))
+    thresh = cm.max() / 2.
 
-    # Usar los colores personalizados para mostrar la matriz
     for i in range(num_groups):
         for j in range(num_classes):
-            plt.text(j, i, class_to_cluster[i][j], ha='center', va='center',
-                     color=light_blue if j == 0 else light_green)
+            plt.text(j, i, format(cm[i][j], 'd'), horizontalalignment="center",
+                     color="white" if cm[i, j] > thresh else "black")
 
     # Etiquetas para los ejes
-    plt.xlabel("Clases")
-    plt.ylabel("Grupos")
+    plt.xlabel("Class")
+    plt.ylabel("Cluster")
 
-    plt.title("Matriz de Clases Asignadas a Grupos")
+    plt.title("Class2Cluster Matrix")
     plt.show()
 
 
 def wordCloud(clusters, textos_tokenizados):
     palabras_del_cluster = []
-    for c in range(-1, max(clusters) + 1):
+    for c in range(min(clusters), max(clusters) + 1):
         palabras_c = ' '
         for i, clus in enumerate(clusters):
             if clus == c:
