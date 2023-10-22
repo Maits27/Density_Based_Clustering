@@ -284,6 +284,17 @@ def llamar_al_metodo(metodo, preProcess, epsilon, minPt):
             else:
                 print(f'Del cluster {cluster} hay {kont} instancias')
             total = total + kont
+    elif metodo == 4:
+        x_train = pd.read_csv('../Datasets/mnist_train.csv')
+        y_train = x_train['label'].copy()
+        x_train.drop('label', axis=1, inplace=True)
+
+        algoritmo3 = DBScanOriginal(x_train, epsilon=epsilon, minPt=minPt)
+        algoritmo3.ejecutarAlgoritmo()
+
+        algoritmo3.imprimir()
+        # classToCluster(preProcess.data, algoritmo3.clusters)
+        # wordCloud(algoritmo3.clusters, preProcess.textos_token)
     else:
         pass
 
@@ -292,17 +303,17 @@ def llamar_al_metodo(metodo, preProcess, epsilon, minPt):
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    for i in [100, 150, 200, 250]:
-        preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv', i)
-        preProcess.cargarDatos()
-        preProcess.limpiezaDatos()
-        preProcess.doc2vec()
+
+    preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv', 150)
+    preProcess.cargarDatos()
+    preProcess.limpiezaDatos()
+    preProcess.doc2vec()
 
     #documentVectors = TSNE(n_components=2, random_state=0).fit_transform(documentVectors)
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
-    epsilon = 6.516
+    epsilon = 7
     minPt = 2
     # preProcess.documentVectors = loadEmbeddings(10000, 150)
     # preProcess.textos_token = loadTokens(10000)
@@ -310,6 +321,7 @@ if __name__ == '__main__':
     # llamar_al_metodo(1, preProcess, epsilon, minPt) # NAGORE
     #llamar_al_metodo(2, preProcess, epsilon, minPt) # MAITANE
     #llamar_al_metodo(3, preProcess, epsilon, minPt) # KMEANS
+    llamar_al_metodo(4, None, epsilon, minPt) # MNIST
 
 
 

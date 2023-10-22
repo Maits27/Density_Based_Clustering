@@ -1,6 +1,14 @@
 import numpy as np
 from pathlib import Path
 
+import csv
+def formatoParaEmbeddingProjector(dim, l):
+    file_name = f"../out/eProjectorTSV/vectoresDoc_L{l}_D{dim}.tsv"
+    document_vectors = loadEmbeddings(length=l, dimension=dim)
+    with open(file_name, 'w', newline='') as tsvfile:
+        writer = csv.writer(tsvfile, delimiter='\t')
+        for vector in document_vectors:
+            writer.writerow(vector)
 
 def saveTokens(textosTokenizados):
     length = len(textosTokenizados)
@@ -41,4 +49,5 @@ def saveEmbeddings(textEmbeddings, dimension):
 def loadEmbeddings(length, dimension):
     print('Cargando embeddings...')
     return np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
-    
+
+formatoParaEmbeddingProjector(150, 10000)

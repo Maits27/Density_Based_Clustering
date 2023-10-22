@@ -1,7 +1,7 @@
 import sys
 
 import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_score, adjusted_rand_score
 from sklearn.neighbors import NearestNeighbors
 from main import DensityAlgorithm, DBScanOriginal
 import numpy as np
@@ -9,6 +9,7 @@ from loadSaveData import loadEmbeddings
 import csv
 import optuna
 import plotly.express as px
+import pandas as pd
 
 optunaNCluster = 0
 
@@ -86,12 +87,12 @@ def barridoDoc2Vec(dimensionList):
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open(f'../Barridos_D{dimension}_Epsilon{espilon}.csv', 'a') as file:
+    with open(f'../out/Barridos/BarridosRAND_D{dimension}_Epsilon{espilon}.csv', 'a') as file:
         writer = csv.writer(file, delimiter='|')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
 
 def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, minimo_instancias,nClusters, silhouette):
-    with open(f'../Barridos_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
+    with open(f'../out/Barridos/BarridosRAND_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
@@ -118,16 +119,16 @@ def objective(trial, loadedEmbedding):
     for cluster in algoritmo.clusters:
         if cluster != -1:
             instancias_por_cluster[cluster] += 1
-    if min(instancias_por_cluster) > minPt+10:
-        minimo_instancias = min(instancias_por_cluster)
-    else:
-        minimo_instancias = -sys.maxsize
-        # Devuelve el número de instancias de ruido (puedes usar otra métrica)
 
+    minimo_instancias = min(instancias_por_cluster)
+
+        # Devuelve el número de instancias de ruido (puedes usar otra métrica)
+    data = pd.read_csv('../Datasets/Suicide_Detection10000.csv')
+    clases = data['class'].copy()
     if optunaNCluster <= 1:
         return -1, 10000, 0, -sys.maxsize
     else:
-        return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, media_puntos_cluster, minimo_instancias
+        return adjusted_rand_score(clases, algoritmo.clusters), optunaNCluster, media_puntos_cluster, minimo_instancias
 
 
 def barridoDBSCANOPtuna(nInstances, dimension):
@@ -157,7 +158,7 @@ def barridoDBSCANOPtuna(nInstances, dimension):
               silhouette=best_silhouette)
 
 
-barridoDBSCANOPtuna(nInstances=10000, dimension=150)
+barridoDBSCANOPtuna(nInstances=10000, dimension=250)
 
 # print(len(loadEmbeddings(length=1000, dimension=150)))
 # barridoDBSCAN(nInstances=1000,
@@ -165,4 +166,4 @@ barridoDBSCANOPtuna(nInstances=10000, dimension=150)
 #               espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
 #               minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
 # heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
-#distance_distribution(nInstances=10000, dimension=150)
+#distance_distribution(nInstances=10000, dimension=200)
