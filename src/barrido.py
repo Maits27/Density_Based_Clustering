@@ -123,12 +123,11 @@ def objective(trial, loadedEmbedding):
     minimo_instancias = min(instancias_por_cluster)
 
         # Devuelve el número de instancias de ruido (puedes usar otra métrica)
-    data = pd.read_csv('../Datasets/Suicide_Detection10000.csv')
-    clases = data['class'].copy()
+
     if optunaNCluster <= 1:
         return -1, 10000, 0, -sys.maxsize
     else:
-        return silhouette_score(clases, algoritmo.clusters), optunaNCluster, media_puntos_cluster, minimo_instancias
+        return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, media_puntos_cluster, minimo_instancias
 
 
 def barridoDBSCANOPtuna(nInstances, dimension):
