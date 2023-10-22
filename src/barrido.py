@@ -1,3 +1,5 @@
+import sys
+
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
@@ -36,7 +38,7 @@ def heuristicoEpsilonDBSCAN(nInstances, dimension):
 def distance_distribution(nInstances, dimension):
     pares_calculados = set()
     distancias = []
-    ema =  [0] * 10
+    ema = [0] * 10
     embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
     for i, doc in enumerate(embeddingVectors):
         for j, doc2 in enumerate(embeddingVectors):
@@ -84,19 +86,19 @@ def barridoDoc2Vec(dimensionList):
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open('../Barridos_7.csv', 'a') as file:
+    with open('../Barridos_12.csv', 'a') as file:
         writer = csv.writer(file, delimiter='|')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
 
-def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, nClusters, silhouette):
-    with open('../Barridos_7.csv', 'w', encoding='utf8') as file:
-        file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tnClusters\tMetric\n')
-        file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{nClusters}\t{silhouette}')
+def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, minimo_instancias,nClusters, silhouette):
+    with open('../Barridos_12.csv', 'w', encoding='utf8') as file:
+        file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
+        file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
 
 def objective(trial, loadedEmbedding):
     epsilon = trial.suggest_float('epsilon', 5, 20.0, step=0.001)
-    minPt = trial.suggest_int('minPt', 1, 30)
+    minPt = trial.suggest_int('minPt', 2, 7)
 
 
     # Utiliza los valores sugeridos por Optuna para la ejecución
@@ -112,28 +114,37 @@ def objective(trial, loadedEmbedding):
     else:
         media_puntos_cluster = 0
 
-        # Devuelve el número de instancias de ruido (puedes usar otra métrica)
-    if optunaNCluster <= 1:
-        return -1, 10000, 0
+    instancias_por_cluster = [0] * algoritmo.getNumClusters()
+    for cluster in algoritmo.clusters:
+        if cluster != -1:
+            instancias_por_cluster[cluster] += 1
+    if min(instancias_por_cluster) > minPt+10:
+        minimo_instancias = min(instancias_por_cluster)
     else:
-        return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, media_puntos_cluster
+        minimo_instancias = -sys.maxsize
+        # Devuelve el número de instancias de ruido (puedes usar otra métrica)
+
+    if optunaNCluster <= 1:
+        return -1, 10000, 0, -sys.maxsize
+    else:
+        return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, media_puntos_cluster, minimo_instancias
 
 
 def barridoDBSCANOPtuna(nInstances, dimension):
     loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension)
 
     # Optimiza para minimizar el ruido
-    study = optuna.create_study(directions=['maximize', 'minimize', 'maximize'])
+    study = optuna.create_study(directions=['maximize', 'minimize', 'maximize', 'maximize'])
 
     # Realiza la optimización de los parámetros
-    study.optimize(lambda trial: objective(trial, loadedEmbedding), n_trials=1000)
+    study.optimize(lambda trial: objective(trial, loadedEmbedding), n_trials=100)
 
     # Obtiene los mejores parámetros encontrados
     best_trial = max(study.best_trials, key=lambda t: t.values[1])
     best_epsilon = best_trial.params['epsilon']
     best_minPt = best_trial.params['minPt']
 
-    best_silhouette, optunaNCluster, best_media_puntos_cluster,  = best_trial.values
+    best_silhouette, optunaNCluster, best_media_puntos_cluster, best_minimo_instancias = best_trial.values
 
 
     saveInCSV2(nInstances=nInstances,
@@ -141,6 +152,7 @@ def barridoDBSCANOPtuna(nInstances, dimension):
               espilon=best_epsilon,
               minPts=best_minPt,
               media_puntos_cluster=best_media_puntos_cluster,
+              minimo_instancias=best_minimo_instancias,
               nClusters=optunaNCluster,
               silhouette=best_silhouette)
 

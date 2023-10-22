@@ -14,7 +14,7 @@ from gensim.models.doc2vec import TaggedDocument
 from gensim.test.utils import get_tmpfile
 
 from loadSaveData import saveEmbeddings, saveTokens, loadEmbeddings, loadTokens
-from results import classToCluster, wordCloud, crearMatrizClassToCluster
+from results import classToCluster, wordCloud
 
 
 def distance(vector1, vector2):
@@ -23,12 +23,13 @@ def distance(vector1, vector2):
 
 class PreProcessing:
 
-    def __init__(self, path):
+    def __init__(self, path, dim):
         self.datasetPath = path
         self.textos = []
         self.textos_token = []
         self.documentVectors = []
         self.data = None
+        self.dimensiones = dim
 
     def cargarDatos(self):
 
@@ -52,10 +53,9 @@ class PreProcessing:
         saveTokens(self.textos_token)
 
     def doc2vec(self):
-        dimensions = 150
 
         documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(self.textos_token)]
-        model = Doc2Vec(documents, vector_size=dimensions, window=2, dm=1, epochs=100, workers=4)
+        model = Doc2Vec(documents, vector_size=self.dimensiones, window=2, dm=1, epochs=100, workers=4)
 
         model.build_vocab(documents)
         model.train(documents, total_examples=model.corpus_count, epochs=model.epochs)
@@ -64,7 +64,7 @@ class PreProcessing:
 
         self.documentVectors = [model.infer_vector(doc) for doc in self.textos_token]
 
-        saveEmbeddings(self.documentVectors, dimensions)
+        saveEmbeddings(self.documentVectors, self.dimensiones)
 
 
 class DensityAlgorithm:
@@ -88,7 +88,7 @@ class DensityAlgorithm:
         for i, _ in enumerate(self.vectors):
             v = []
             for j, _ in enumerate(self.vectors):
-                if j != i and self.distancias.get(frozenset([i, j])) <= self.epsilon:
+                if j != i and self.distancias.get('_'.join(sorted([str(i), str(j)]))) <= self.epsilon:
                     v.append(j)
             self.vecinos.append(v)
             if len(v) >= self.minPt:
@@ -116,14 +116,14 @@ class DensityAlgorithm:
         for i, doc in enumerate(self.vectors):
             for j, doc2 in enumerate(self.vectors):
                 if j != i:
-                    if frozenset([i, j]) not in self.distancias:
+                    if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
                         distEuc = np.linalg.norm(doc - doc2)
-                        self.distancias[frozenset([i, j])] = distEuc
+                        self.distancias[pair] = distEuc
         print(f'LAS DISTANCIAS SUMAN: {len(self.distancias)}')
 
     def imprimir(self):
         total = 0
-        for cluster in range(min(self.clusters), max(self.clusters) + 1):
+        for cluster in range(min(self.clusters), max(self.clusters) + 2):
             kont = 0
             for i in self.clusters:
                 if i == cluster:
@@ -292,22 +292,23 @@ def llamar_al_metodo(metodo, preProcess, epsilon, minPt):
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-    preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv')
-    preProcess.cargarDatos()
-    preProcess.limpiezaDatos()
-    preProcess.doc2vec()
+    for i in [100, 150, 200, 250]:
+        preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv', i)
+        preProcess.cargarDatos()
+        preProcess.limpiezaDatos()
+        preProcess.doc2vec()
 
     #documentVectors = TSNE(n_components=2, random_state=0).fit_transform(documentVectors)
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
-    epsilon = 15
-    minPt = 3
+    epsilon = 6.516
+    minPt = 2
     # preProcess.documentVectors = loadEmbeddings(10000, 150)
     # preProcess.textos_token = loadTokens(10000)
-    llamar_al_metodo(0, preProcess, epsilon, minPt) # DBSCAN
+    #llamar_al_metodo(0, preProcess, epsilon, minPt) # DBSCAN
     # llamar_al_metodo(1, preProcess, epsilon, minPt) # NAGORE
-    # llamar_al_metodo(2, preProcess, epsilon, minPt) # MAITANE
+    #llamar_al_metodo(2, preProcess, epsilon, minPt) # MAITANE
     #llamar_al_metodo(3, preProcess, epsilon, minPt) # KMEANS
 
 

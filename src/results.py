@@ -4,7 +4,7 @@ from sklearn.metrics import confusion_matrix
 from wordcloud import WordCloud
 import matplotlib.colors as mcolors
 
-def crearMatrizClassToCluster(data, clusters):
+'''def crearMatrizClassToCluster(data, clusters):
     clusters_validos = set(clusters)
     clases = data['class'].copy()
     print(len(clases))
@@ -17,16 +17,16 @@ def crearMatrizClassToCluster(data, clusters):
                 class_to_cluster[c][0] += 1
             else:
                 class_to_cluster[c][1] += 1
-    return class_to_cluster
+    return class_to_cluster'''
 
 def clase_a_num(data):
     clases = data['class'].copy()
     res = []
-    for c in clases:
+    for i, c in enumerate(clases):
         if c.__eq__('suicide'):
-            res.append(0)
+            res.append(-1)
         else:
-            res.append(1)
+            res.append(0)
     return res
 def classToCluster(data, clusters):
     cm = confusion_matrix(clusters, clase_a_num(data))
