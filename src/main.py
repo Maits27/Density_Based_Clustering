@@ -109,7 +109,7 @@ class DensityAlgorithm:
                                 nucleosPorVisitar.append(index)
 
     def calcular_distancias(self):
-        for i, doc in enumerate(self.vectors):
+        for i, doc in tqdm(enumerate(self.vectors), 'Ejecutando Maitane'):
             for j, doc2 in enumerate(self.vectors):
                 if j != i:
                     if frozenset([i, j]) not in self.distancias:
@@ -164,7 +164,7 @@ class DensityAlgorithm2:
     def ejecutarAlgoritmo(self):
         labels = [0] * len(self.vectors)
         cluster_id = 0
-        for i in range(len(self.vectors)):
+        for i in tqdm(range(len(self.vectors)), 'Ejecutando Nagore'):
             if labels[i] == 0:
                 neighbors = self.get_neighbors(self.vectors[i])
                 if len(neighbors) < self.minPt:

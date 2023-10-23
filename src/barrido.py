@@ -6,6 +6,7 @@ import numpy as np
 from loadSaveData import loadEmbeddings
 import csv
 import optuna
+from tqdm import tqdm
 
 optunaNCluster = 0
 
@@ -36,15 +37,12 @@ def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
     embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
 
     # Barrido
-    for eps in espilonList:
+    for eps in tqdm(espilonList, desc='Barriendo'):
         for minPts in minPtsList:
             dbscan = DBScanOriginal(vectors=embeddingVectors, epsilon=eps, minPt=minPts)
             dbscan.ejecutarAlgoritmo()
             numClusters = dbscan.getNumClusters()
-            print(numClusters)
             if numClusters > 1:
-                print(dbscan.clusters)
-                print(numClusters)
                 silhouette = silhouette_score(embeddingVectors, dbscan.clusters)
             else:
                 silhouette = 0
@@ -82,7 +80,7 @@ def objective(trial, loadedEmbedding):
     if algoritmo.getNumClusters() <= 1: return 0
     else: return silhouette_score(loadedEmbedding, algoritmo.clusters)
     
-    
+
 def barridoDBSCANOPtuna(nInstances, dimension):
     loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension)
 
@@ -106,9 +104,15 @@ def barridoDBSCANOPtuna(nInstances, dimension):
 
 
 #barridoDBSCANOPtuna(nInstances=1000, dimension=150)
-print(len(loadEmbeddings(length=1000, dimension=150)))
-barridoDBSCAN(nInstances=1000, 
+#print(len(loadEmbeddings(length=10000, dimension=150)))
+
+"""
+epsilonTest = [0.05, 0.5, 1, 2, 5] + [i for i in range(5, 200, 10)]
+minPtsTest = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+barridoDBSCAN(nInstances=10000, 
               dimension=150, 
-              espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500], 
-              minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
-#heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
+              espilonList=epsilonTest, 
+              minPtsList=minPtsTest)
+"""
+heuristicoEpsilonDBSCAN(nInstances=10000, dimension=150)
