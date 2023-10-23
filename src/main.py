@@ -2,6 +2,7 @@ import pandas as pd
 import spacy
 import emoji
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.manifold import TSNE
 from tqdm import tqdm
 import time
@@ -12,6 +13,7 @@ from sklearn.cluster import KMeans
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import TaggedDocument
 from gensim.test.utils import get_tmpfile
+from sklearn.metrics.pairwise import cosine_similarity
 
 from loadSaveData import saveEmbeddings, saveTokens, loadEmbeddings, loadTokens
 from results import classToCluster, wordCloud
@@ -52,6 +54,10 @@ class PreProcessing:
 
         saveTokens(self.textos_token)
 
+    def tfidf(self):
+        vectorizer = TfidfVectorizer()
+        self.documentVectors = vectorizer.fit_transform(self.textos)
+        saveEmbeddings(self.documentVectors, self.dimensiones)
     def doc2vec(self):
 
         documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(self.textos_token)]
@@ -117,7 +123,7 @@ class DensityAlgorithm:
             for j, doc2 in enumerate(self.vectors):
                 if j != i:
                     if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
-                        distEuc = np.linalg.norm(doc - doc2)
+                        distEuc = 1-cosine_similarity([doc], [doc2])
                         self.distancias[pair] = distEuc
         print(f'LAS DISTANCIAS SUMAN: {len(self.distancias)}')
 
@@ -303,8 +309,7 @@ def llamar_al_metodo(metodo, preProcess, epsilon, minPt):
 if __name__ == '__main__':
     # PREPROCESADO DE DATOS
 
-
-    preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv', 150)
+    preProcess = PreProcessing('../Datasets/Suicide_Detection_10000.csv', 150)
     preProcess.cargarDatos()
     preProcess.limpiezaDatos()
     preProcess.doc2vec()
@@ -313,15 +318,15 @@ if __name__ == '__main__':
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
-    epsilon = 7
-    minPt = 2
+    epsilon =22.27
+    minPt = 1
     # preProcess.documentVectors = loadEmbeddings(10000, 150)
     # preProcess.textos_token = loadTokens(10000)
-    #llamar_al_metodo(0, preProcess, epsilon, minPt) # DBSCAN
+    llamar_al_metodo(0, preProcess, epsilon, minPt) # DBSCAN
     # llamar_al_metodo(1, preProcess, epsilon, minPt) # NAGORE
-    #llamar_al_metodo(2, preProcess, epsilon, minPt) # MAITANE
+    llamar_al_metodo(2, preProcess, epsilon, minPt) # MAITANE
     #llamar_al_metodo(3, preProcess, epsilon, minPt) # KMEANS
-    llamar_al_metodo(4, None, epsilon, minPt) # MNIST
+    #llamar_al_metodo(4, None, epsilon, minPt) # MNIST
 
 
 

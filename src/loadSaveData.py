@@ -3,7 +3,7 @@ from pathlib import Path
 
 import csv
 def formatoParaEmbeddingProjector(dim, l):
-    file_name = f"../out/eProjectorTSV/vectoresDoc_L{l}_D{dim}.tsv"
+    file_name = f"../out/eProjectorTSV/VectoresDoc_L{l}_D{dim}.tsv"
     document_vectors = loadEmbeddings(length=l, dimension=dim)
     with open(file_name, 'w', newline='') as tsvfile:
         writer = csv.writer(tsvfile, delimiter='\t')
@@ -50,4 +50,4 @@ def loadEmbeddings(length, dimension):
     print('Cargando embeddings...')
     return np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
 
-formatoParaEmbeddingProjector(150, 10000)
+formatoParaEmbeddingProjector(250, 10000)

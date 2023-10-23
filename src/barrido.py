@@ -87,19 +87,19 @@ def barridoDoc2Vec(dimensionList):
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open(f'../out/Barridos/Barridos_D{dimension}_Epsilon{espilon}.csv', 'a') as file:
+    with open(f'../out/Barridos/MNISTBarridos_D{dimension}_Epsilon{espilon}.csv', 'a') as file:
         writer = csv.writer(file, delimiter='|')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
 
 def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, minimo_instancias,nClusters, silhouette):
-    with open(f'../out/Barridos/Barridos_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
+    with open(f'../out/Barridos/MNISTBarridos_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
 
 def objective(trial, loadedEmbedding):
-    epsilon = trial.suggest_float('epsilon', 5, 20.0, step=0.001)
-    minPt = trial.suggest_int('minPt', 2, 7)
+    epsilon = trial.suggest_float('epsilon', 5, 30.0, step=0.001)
+    minPt = trial.suggest_int('minPt', 1, 20)
 
 
     # Utiliza los valores sugeridos por Optuna para la ejecución
@@ -119,8 +119,9 @@ def objective(trial, loadedEmbedding):
     for cluster in algoritmo.clusters:
         if cluster != -1:
             instancias_por_cluster[cluster] += 1
-
-    minimo_instancias = min(instancias_por_cluster)
+    minimo_instancias = 0
+    if len(instancias_por_cluster)!=0:
+        minimo_instancias = min(instancias_por_cluster)
 
         # Devuelve el número de instancias de ruido (puedes usar otra métrica)
 
@@ -131,8 +132,9 @@ def objective(trial, loadedEmbedding):
 
 
 def barridoDBSCANOPtuna(nInstances, dimension):
-    loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension)
-
+    data = pd.read_csv('../Datasets/mnist_train.csv')
+    # loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension)
+    loadedEmbedding = data.values
     # Optimiza para minimizar el ruido
     study = optuna.create_study(directions=['maximize', 'minimize', 'maximize', 'maximize'])
 
