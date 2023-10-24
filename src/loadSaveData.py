@@ -1,7 +1,8 @@
 import numpy as np
 from pathlib import Path
-
 import csv
+
+
 def formatoParaEmbeddingProjector(dim, l):
     file_name = f"../out/eProjectorTSV/VectoresDoc_L{l}_D{dim}.tsv"
     document_vectors = loadEmbeddings(length=l, dimension=dim)
@@ -9,6 +10,7 @@ def formatoParaEmbeddingProjector(dim, l):
         writer = csv.writer(tsvfile, delimiter='\t')
         for vector in document_vectors:
             writer.writerow(vector)
+
 
 def saveTokens(textosTokenizados):
     length = len(textosTokenizados)
@@ -37,17 +39,19 @@ def loadTokens(length):
     return textosTokenizados
 
 
-def saveEmbeddings(textEmbeddings, dimension):
-    print('Guardando embeddings...') # TODO lo he cambiado para que no lo haga siempre (solo si no esta creado ya)
+def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
+    print('Guardando embeddings...')
     length = len(textEmbeddings)
-    ruta = Path(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
-    if not ruta.exists():
+    if type == 'bert': ruta = Path(f'../out/embeddings/bert/embeddings{length}dim{dimension}.npy')
+    else: ruta = Path(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+    if not ruta.exists(): # Only if file not exists
         np.save(ruta, textEmbeddings)
 
 
 
-def loadEmbeddings(length, dimension):
+def loadEmbeddings(length, dimension, type='no-bert'):
     print('Cargando embeddings...')
-    return np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+    if type == 'bert': return np.load(f'../out/embeddings/bert/embeddings{length}dim{dimension}.npy')
+    else: return np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
 
 formatoParaEmbeddingProjector(250, 10000)

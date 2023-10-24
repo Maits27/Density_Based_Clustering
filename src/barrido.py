@@ -8,6 +8,7 @@ import numpy as np
 from loadSaveData import loadEmbeddings
 import csv
 import optuna
+from tqdm import tqdm
 import plotly.express as px
 import pandas as pd
 
@@ -55,20 +56,18 @@ def distance_distribution(nInstances, dimension):
     fig = px.histogram(x=distancias, nbins=20)
     fig.show()
 
-def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
+
+def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList, type='no-bert'):
     # Load vectors
     embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
 
     # Barrido
-    for eps in espilonList:
+    for eps in tqdm(espilonList, desc='Barriendo'):
         for minPts in minPtsList:
             dbscan = DBScanOriginal(vectors=embeddingVectors, epsilon=eps, minPt=minPts)
             dbscan.ejecutarAlgoritmo()
             numClusters = dbscan.getNumClusters()
-            print(numClusters)
             if numClusters > 1:
-                print(dbscan.clusters)
-                print(numClusters)
                 silhouette = silhouette_score(embeddingVectors, dbscan.clusters)
             else:
                 silhouette = 0
@@ -90,6 +89,7 @@ def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
     with open(f'../out/Barridos/MNISTBarridos_D{dimension}_Epsilon{espilon}.csv', 'a') as file:
         writer = csv.writer(file, delimiter='|')
         writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
+
 
 def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, minimo_instancias,nClusters, silhouette):
     with open(f'../out/Barridos/MNISTBarridos_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
@@ -131,10 +131,10 @@ def objective(trial, loadedEmbedding):
         return silhouette_score(loadedEmbedding, algoritmo.clusters), optunaNCluster, media_puntos_cluster, minimo_instancias
 
 
-def barridoDBSCANOPtuna(nInstances, dimension):
-    data = pd.read_csv('../Datasets/mnist_train.csv')
-    # loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension)
-    loadedEmbedding = data.values
+def barridoDBSCANOPtuna(nInstances, dimension, type='no-bert'):
+    # data = pd.read_csv('../Datasets/mnist_train.csv') # TODO no entiendo por qué está cargado directamente el CSV
+    loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension, type=type)
+    # loadedEmbedding = data.values
     # Optimiza para minimizar el ruido
     study = optuna.create_study(directions=['maximize', 'minimize', 'maximize', 'maximize'])
 
@@ -159,7 +159,12 @@ def barridoDBSCANOPtuna(nInstances, dimension):
               silhouette=best_silhouette)
 
 
-barridoDBSCANOPtuna(nInstances=10000, dimension=250)
+# Hardcoded
+nInstances = 10000
+dimension = 768
+type = 'bert'
+
+barridoDBSCANOPtuna(nInstances=nInstances, dimension=dimension, type=type)
 
 # print(len(loadEmbeddings(length=1000, dimension=150)))
 # barridoDBSCAN(nInstances=1000,
