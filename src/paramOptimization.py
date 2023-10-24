@@ -3,9 +3,9 @@ import sys
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score, adjusted_rand_score
 from sklearn.neighbors import NearestNeighbors
-from main import DensityAlgorithm, DBScanOriginal
+from clustering import DensityAlgorithm, DBScanOriginal
 import numpy as np
-from loadSaveData import loadEmbeddings
+from loadSaveData import loadEmbeddings, saveInCSV, saveInCSV2
 import csv
 import optuna
 import plotly.express as px
@@ -56,6 +56,7 @@ def distance_distribution(nInstances, dimension):
     fig.write_image(f"../img/Distancias_I{nInstances}_D{dimension}.png")
     fig.show()
 
+
 def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
     # Load vectors
     embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
@@ -85,17 +86,6 @@ def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
 
 def barridoDoc2Vec(dimensionList):
     pass
-
-
-def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
-    with open(f'../out/Barridos/TRANSFORMERSBarridos_D{dimension}_Epsilon{espilon}.csv', 'a') as file:
-        writer = csv.writer(file, delimiter='|')
-        writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
-
-def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, minimo_instancias,nClusters, silhouette):
-    with open(f'../out/Barridos/TRANSFORMERSBarridos_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
-        file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
-        file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
 
 def objective(trial, loadedEmbedding):
@@ -167,4 +157,4 @@ def barridoDBSCANOPtuna(nInstances, dimension):
 #               espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
 #               minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
 # heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
-distance_distribution(nInstances=10000, dimension=768)
+# distance_distribution(nInstances=10000, dimension=768)

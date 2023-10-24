@@ -1,7 +1,13 @@
 import numpy as np
+import pandas as pd
 from pathlib import Path
 import csv
 
+
+def loadRAW(path):
+    data = pd.read_csv(path)
+    return [instancia[1] for instancia in data.values]
+        
 
 def formatoParaEmbeddingProjector(dim, l):
     file_name = f"../out/eProjectorTSV/VectoresDoc_L{l}_D{dim}.tsv"
@@ -48,10 +54,21 @@ def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
         np.save(ruta, textEmbeddings)
 
 
-
 def loadEmbeddings(length, dimension, type='no-bert'):
     print('Cargando embeddings...')
     if type == 'bert': return np.load(f'../out/embeddings/bert/embeddings{length}dim{dimension}.npy')
     else: return np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+
+
+def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
+    with open(f'../out/Barridos/TRANSFORMERSBarridos_D{dimension}_Epsilon{espilon}.csv', 'a') as file:
+        writer = csv.writer(file, delimiter='|')
+        writer.writerow([nInstances, dimension, espilon, minPts, nClusters, silhouette])
+
+
+def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, minimo_instancias,nClusters, silhouette):
+    with open(f'../out/Barridos/TRANSFORMERSBarridos_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
+        file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
+        file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
 formatoParaEmbeddingProjector(250, 10000)

@@ -3,14 +3,13 @@ import sys
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
-from main import DensityAlgorithm, DBScanOriginal
+from clustering import DensityAlgorithm, DBScanOriginal
 import numpy as np
 from loadSaveData import loadEmbeddings
 import csv
 import optuna
 import plotly.express as px
 
-optunaNCluster = 0
 def distance_distribution(nInstances, dimension):
     pares_calculados = set()
     distancias = []
@@ -29,4 +28,13 @@ def distance_distribution(nInstances, dimension):
     print(f'LOS TARTES DE LAS DISTANCIAS: {ema}')
     fig = px.histogram(x=distancias, nbins=20)
     fig.show()
-distance_distribution(nInstances=10000, dimension=250)
+
+
+def PCA():
+    pass
+
+
+def tSNE():
+    pass
+
+#distance_distribution(nInstances=10000, dimension=250)

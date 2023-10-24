@@ -28,6 +28,8 @@ def clase_a_num(data):
         else:
             res.append(0)
     return res
+
+
 def classToCluster(data, clusters):
     cm = confusion_matrix(clusters, clase_a_num(data))
     # Supongamos que tienes 20 grupos y 2 clases
