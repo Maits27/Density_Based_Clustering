@@ -3,14 +3,14 @@
 #https://medium.com/@priyatoshanand/handle-long-text-corpus-for-bert-model-3c85248214aa#:~:text=If%20the%20tokens%20in%20a%20sequence%20are%20longer%20than%20512,in%20each%20of%20the%20tokens.
 
 import torch # PyTorch
-from transformers import RobertaModel, RobertaTokenizer # library by HuggingFace
+from transformers import AutoTokenizer, RobertaModel # library by HuggingFace
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
 from loadSaveData import saveEmbeddings, loadEmbeddings
 
-model = RobertaModel.from_pretrained('roberta-base') # BERT base, which is a BERT model consists of 12 layers of Transformer encoder, 12 attention heads, 768 hidden size, and 110M parameters.
-tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+model = RobertaModel.from_pretrained('cardiffnlp/twitter-xlm-roberta-base').eval() # BERT base, which is a BERT model consists of 12 layers of Transformer encoder, 12 attention heads, 768 hidden size, and 110M parameters.
+tokenizer = AutoTokenizer.from_pretrained('cardiffnlp/twitter-xlm-roberta-base', use_fast=True)
 
 data = pd.read_csv('../Datasets/Suicide_Detection10000.csv')
 texts = []
