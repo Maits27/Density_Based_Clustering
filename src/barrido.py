@@ -53,6 +53,7 @@ def distance_distribution(nInstances, dimension):
         else: ema[index] = ema[index]+1
     print(f'LOS TARTES DE LAS DISTANCIAS: {ema}')
     fig = px.histogram(x=distancias, nbins=20)
+    fig.write_image(f"../img/Distancias_I{nInstances}_D{dimension}.png")
     fig.show()
 
 def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
@@ -158,7 +159,7 @@ def barridoDBSCANOPtuna(nInstances, dimension):
               silhouette=best_silhouette)
 
 
-barridoDBSCANOPtuna(nInstances=10000, dimension=768)
+#barridoDBSCANOPtuna(nInstances=10000, dimension=768)
 
 # print(len(loadEmbeddings(length=1000, dimension=150)))
 # barridoDBSCAN(nInstances=1000,
@@ -166,4 +167,4 @@ barridoDBSCANOPtuna(nInstances=10000, dimension=768)
 #               espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
 #               minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
 # heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
-#distance_distribution(nInstances=10000, dimension=768)
+distance_distribution(nInstances=10000, dimension=768)

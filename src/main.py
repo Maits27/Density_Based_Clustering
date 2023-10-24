@@ -295,7 +295,7 @@ def llamar_al_metodo(metodo, preProcess, epsilon, minPt):
         y_train = x_train['label'].copy()
         x_train.drop('label', axis=1, inplace=True)
 
-        algoritmo3 = DBScanOriginal(x_train, epsilon=epsilon, minPt=minPt)
+        algoritmo3 = DBScanOriginal(preProcess.documentVectors, epsilon=epsilon, minPt=minPt, metric='cosine')
         algoritmo3.ejecutarAlgoritmo()
 
         algoritmo3.imprimir()

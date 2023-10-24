@@ -76,7 +76,7 @@ class PreProcessing:
 
 class DensityAlgorithm:
 
-    def __init__(self, vectors, epsilon, minPt, dim):
+    def __init__(self, vectors, epsilon, minPt, dim, dist={}):
         self.vectors = vectors  # DOCUMENTOS VECTORIZADOS
         self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
         self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
@@ -84,18 +84,15 @@ class DensityAlgorithm:
         self.vecinos = []
         self.nucleos = []  # CONJUNTO DE INSTANCIAS NUCLEO
         self.clusters = [-1] * len(self.vectors) # CONJUNTO DE CLUSTERS
-        self.distancias = {} # DISTANCIAS ENTRE VECTORES {frozenSet: float}
+        self.distancias = dist # DISTANCIAS ENTRE VECTORES {frozenSet: float}
         self.clustersValidos = []  # CONJUNTO DE CLUSTERS SELECCIONADOS
         self.alcanzables = []
         self.dimensiones = dim
 
-    def ejectuarAlgoritmo(self):
-        archivoPath = Path(f'distanciasEuc{self.dimensiones}')
-        if not archivoPath.exists():
-            self.calcular_distancias()
-        else:
-            with open(archivoPath, "r") as archivo:
-                self.distancias = json.load(archivo)
+    def ejecutarAlgoritmo(self):
+
+        self.calcular_distancias()
+
         self.buscarNucleos()
         self.crearClusters()
         self.seleccionClusters()
@@ -105,14 +102,13 @@ class DensityAlgorithm:
 
     def calcular_distancias(self):
         print('CALCULANDO DISTANCIAS')
-        '''archivoPath = Path(f'distanciasEuc{self.dimensiones}')
-        if not archivoPath.exists():'''
-        for i, doc in enumerate(self.vectors):
-            for j, doc2 in enumerate(self.vectors):
-                if j != i:
-                    if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
-                        distEuc = np.linalg.norm(doc - doc2) # 1-cosine_similarity([doc], [doc2])
-                        self.distancias[pair] = distEuc
+        if len(self.distancias)==0:
+            for i, doc in enumerate(self.vectors):
+                for j, doc2 in enumerate(self.vectors):
+                    if j != i:
+                        if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
+                            distEuc = np.linalg.norm(doc - doc2) # 1-cosine_similarity([doc], [doc2])
+                            self.distancias[pair] = distEuc
         print(f'TOTAL DE {len(self.distancias)} DISTANCIAS CALCULADAS')
 
             # with open(archivoPath, "w", encoding="utf-8") as archivo:
@@ -171,6 +167,9 @@ class DensityAlgorithm:
                 if self.clusters[j] == self.clustersValidos[i]:
                     self.clusters[j] = i
 
+    def getNumClusters(self):
+        return len(set(self.clusters) - {-1})
+
     def imprimir(self):
         for cluster in range(min(self.clusters), max(self.clusters) + 2):
             kont = 0
@@ -182,12 +181,13 @@ class DensityAlgorithm:
             else:
                 print(f'Del cluster {cluster} hay {kont} instancias')
 
+
 def llamar_al_metodo(preProcess, epsilon, minPt):
 
     # CLUSTERING ALTERNATIVO
     start_time = time.time()
     algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=epsilon, minPt=minPt, dim=preProcess.dimensiones)
-    algoritmo.ejectuarAlgoritmo()
+    algoritmo.ejecutarAlgoritmo()
     end_time = time.time()
 
     print(f'\n\n\nTiempo Maitane: {end_time - start_time}')
