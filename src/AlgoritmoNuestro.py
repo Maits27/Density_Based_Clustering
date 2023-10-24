@@ -3,12 +3,13 @@ import spacy
 import emoji
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.manifold import TSNE
+
 from tqdm import tqdm
 import time
+import json
+from pathlib import Path
 
 from sklearn.cluster import DBSCAN
-from sklearn.cluster import KMeans
 
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import TaggedDocument
@@ -75,7 +76,7 @@ class PreProcessing:
 
 class DensityAlgorithm:
 
-    def __init__(self, vectors, epsilon, minPt):
+    def __init__(self, vectors, epsilon, minPt, dim):
         self.vectors = vectors  # DOCUMENTOS VECTORIZADOS
         self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
         self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
@@ -86,24 +87,37 @@ class DensityAlgorithm:
         self.distancias = {} # DISTANCIAS ENTRE VECTORES {frozenSet: float}
         self.clustersValidos = []  # CONJUNTO DE CLUSTERS SELECCIONADOS
         self.alcanzables = []
+        self.dimensiones = dim
 
     def ejectuarAlgoritmo(self):
-        self.calcular_distancias()
+        archivoPath = Path(f'distanciasEuc{self.dimensiones}')
+        if not archivoPath.exists():
+            self.calcular_distancias()
+        else:
+            with open(archivoPath, "r") as archivo:
+                self.distancias = json.load(archivo)
         self.buscarNucleos()
         self.crearClusters()
         self.seleccionClusters()
+
         self.reclasificarInst()
         self.reasignarLabelCluster()
 
     def calcular_distancias(self):
         print('CALCULANDO DISTANCIAS')
+        '''archivoPath = Path(f'distanciasEuc{self.dimensiones}')
+        if not archivoPath.exists():'''
         for i, doc in enumerate(self.vectors):
             for j, doc2 in enumerate(self.vectors):
                 if j != i:
                     if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
-                        distEuc = 1-cosine_similarity([doc], [doc2])
+                        distEuc = np.linalg.norm(doc - doc2) # 1-cosine_similarity([doc], [doc2])
                         self.distancias[pair] = distEuc
         print(f'TOTAL DE {len(self.distancias)} DISTANCIAS CALCULADAS')
+
+            # with open(archivoPath, "w", encoding="utf-8") as archivo:
+            #     # Utilizar json.dump() para escribir el diccionario en el archivo
+            #     json.dump(self.distancias, archivo, ensure_ascii=False)
 
     def buscarNucleos(self):
         for i, _ in enumerate(self.vectors):
@@ -145,7 +159,7 @@ class DensityAlgorithm:
     def reclasificarInst(self):
         for i, vecinos in self.alcanzables:
             previo = self.clusters[i]
-            for j, v in vecinos:
+            for j in vecinos:
                 if self.clusters[j] in self.clustersValidos:
                     self.clusters[i] = self.clusters[j]
             if previo == self.clusters[i]:
@@ -158,7 +172,6 @@ class DensityAlgorithm:
                     self.clusters[j] = i
 
     def imprimir(self):
-        total = 0
         for cluster in range(min(self.clusters), max(self.clusters) + 2):
             kont = 0
             for i in self.clusters:
@@ -168,94 +181,41 @@ class DensityAlgorithm:
                 print(f'Hay un total de {kont} instancias que son ruido')
             else:
                 print(f'Del cluster {cluster} hay {kont} instancias')
-            total = total + kont
 
+def llamar_al_metodo(preProcess, epsilon, minPt):
 
+    # CLUSTERING ALTERNATIVO
+    start_time = time.time()
+    algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=epsilon, minPt=minPt, dim=preProcess.dimensiones)
+    algoritmo.ejectuarAlgoritmo()
+    end_time = time.time()
 
-class DBScanOriginal:
-    def __init__(self, vectors, epsilon, minPt):
-        self.vectors = vectors  # DOCUMENTOS VECTORIZADOS
-        self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
-        self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
-        self.clusters = []
-        self.numClusters = None
+    print(f'\n\n\nTiempo Maitane: {end_time - start_time}')
+    algoritmo.imprimir()
 
-    def ejecutarAlgoritmo(self):
-        # Aplicar DBSCAN a los vectores de documentos
-        cosine_sim_matrix = 1 - cosine_similarity(self.vectors)
-        dbscan = DBSCAN(eps=self.epsilon, min_samples=self.minPt, metric='precomputed')  # Ajusta los parámetros según tu caso
-        self.clusters = dbscan.fit_predict(cosine_sim_matrix)
+    classToCluster(preProcess.data, algoritmo.clusters)
+    wordCloud(algoritmo.clusters, preProcess.textos_token)
 
-    def imprimir(self):
-        total = 0
-        for cluster in range(min(self.clusters), max(self.clusters) + 1):
-            kont = 0
-            for i in self.clusters:
-                if i == cluster:
-                    kont += 1
-            if cluster == -1:
-                print(f'Hay un total de {kont} instancias que son ruido')
-            else:
-                print(f'Del cluster {cluster} hay {kont} instancias')
-            total = total + kont
-
-    def getNoiseInstances(self):
-        return np.count_nonzero(self.clusters == -1)
-
-    def getNumClusters(self):
-        if self.numClusters is not None: return self.numClusters
-        else:
-            self.numClusters = len(set(self.clusters) - {-1})
-            return self.numClusters
-
-def llamar_al_metodo(metodo, preProcess, epsilon, minPt):
-
-    if metodo == 0:
-        # CLUSTERING DBSCAN ORIGINAL
-        start_time = time.time()
-        algoritmo3 = DBScanOriginal(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
-        algoritmo3.ejecutarAlgoritmo()
-        end_time = time.time()
-
-        print(f'\n\n\nTiempo DBScan: {end_time - start_time}')
-
-        algoritmo3.imprimir()
-        classToCluster(preProcess.data, algoritmo3.clusters)
-        wordCloud(algoritmo3.clusters, preProcess.textos_token)
-
-    elif metodo == 1:
-        # CLUSTERING ALTERNATIVO
-        start_time = time.time()
-        algoritmo = DensityAlgorithm(preProcess.documentVectors, epsilon=epsilon, minPt=minPt)
-        algoritmo.ejectuarAlgoritmo()
-        end_time = time.time()
-
-        print(f'\n\n\nTiempo Maitane: {end_time - start_time}')
-        algoritmo.imprimir()
-
-        classToCluster(preProcess.data, algoritmo.clusters)
-        wordCloud(algoritmo.clusters, preProcess.textos_token)
-
-    else:
-        pass
 
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     # PREPROCESADO DE DATOS
-    preProcess = PreProcessing('../Datasets/Suicide_Detection_1000.csv', 150)
+    preProcess = PreProcessing('../Datasets/Suicide_Detection10000.csv', 150)
     preProcess.cargarDatos()
     # PREPROCESO SIN HACER
     preProcess.limpiezaDatos()
-    # preProcess.doc2vec()
+    #preProcess.doc2vec()
 
     # PREPROCESADO HECHO:
-    preProcess.documentVectors = loadEmbeddings(1000, 150)
+    preProcess.documentVectors = loadEmbeddings(10000, 150)
     #preProcess.textos_token = loadTokens(10000)
+    end_time = time.time()
+    print(f'\n\n\nTiempo preproceso: {end_time - start_time}')
 
     # PROCESO DE CLUSTERING
     # PARAMETROS:
-    epsilon = 22.27
-    minPt = 1
-    #llamar_al_metodo(0, preProcess, epsilon, minPt) # DBSCAN
-    llamar_al_metodo(1, preProcess, epsilon, minPt) # MAITANE
+    epsilon = 12.25#15#10
+    minPt = 10#10#5
+    llamar_al_metodo(preProcess, epsilon, minPt) # MAITANE
