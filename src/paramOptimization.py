@@ -14,9 +14,9 @@ import pandas as pd
 optunaNCluster = 0
 
 
-def heuristicoEpsilonDBSCAN(nInstances, dimension):
+def heuristicoEpsilonDBSCAN(nInstances, dimension, type):
     # Load vectors
-    embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
+    embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension, type=type)
 
     # Get distances using k-NN
     nn = NearestNeighbors(n_neighbors=dimension * 2)
@@ -36,9 +36,9 @@ def heuristicoEpsilonDBSCAN(nInstances, dimension):
     plt.show()
 
 
-def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
+def barridoDBSCAN(nInstances, dimension, type, espilonList, minPtsList):
     # Load vectors
-    embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
+    embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension, type=type)
 
     # Barrido
     for eps in espilonList:
@@ -102,8 +102,8 @@ def objective(trial, loadedEmbedding):
         return s, optunaNCluster, media_puntos_cluster, minimo_instancias
 
 
-def barridoDBSCANOPtuna(nInstances, dimension):
-    loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension, type='bert')
+def barridoDBSCANOPtuna(nInstances, dimension, type):
+    loadedEmbedding = loadEmbeddings(length=nInstances, dimension=dimension, type=type)
     # Optimiza para minimizar el ruido
     study = optuna.create_study(directions=['maximize', 'minimize', 'maximize', 'maximize'])
 
@@ -129,13 +129,18 @@ def barridoDBSCANOPtuna(nInstances, dimension):
 
 
 if __name__ == '__main__':
+    nInstaces = int(sys.argv[2])
+    dimension = int(sys.argv[3])
+    type = sys.argv[4]
+
     if sys.argv[1] == 'optuna':
-        barridoDBSCANOPtuna(nInstances=sys.argv[2], dimension=sys.argv[3])
+        barridoDBSCANOPtuna(nInstances=nInstaces, dimension=dimension, type=type)
     elif sys.argv[1] == 'heuristic':
-        heuristicoEpsilonDBSCAN(nInstances=sys.argv[2], dimension=sys.argv[3])
+        heuristicoEpsilonDBSCAN(nInstances=nInstaces, dimension=dimension, type=type)
     elif sys.argv[1] == 'barridoDBSCAN':
-        barridoDBSCAN(nInstances=sys.argv[2],
-                      dimension=sys.argv[3],
+        barridoDBSCAN(nInstances=nInstaces,
+                      dimension=dimension,
+                      type=type,
                       espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
                       minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
     else:

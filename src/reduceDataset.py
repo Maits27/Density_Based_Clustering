@@ -1,17 +1,28 @@
 import pandas as pd
 import numpy as np
-datsetPath = '../Datasets/Suicide_Detection.csv'
+from loadSaveData import readRAW
+import sys
 
-data = pd.read_csv(datsetPath)
-print('Original datset length', len(data))
 
-numberOfInstancesToGet = 10000
+def isPossibleToSplit(totalInstances, numTrainInstances, numTestInstances):
+	return (numTrainInstances + numTestInstances) <= totalInstances
 
-reducedDataset = data.tail(n=numberOfInstancesToGet)
 
-pathToWirte = f'../Datasets/Suicide_Detection_{numberOfInstancesToGet}.csv'
-reducedDataset.to_csv(pathToWirte, index=False)
+def reduceDataset(path, numTrainInstances, numTestInstances, pathToWrite):
+	data = readRAW(path)
 
-# Check
-dataCheck = pd.read_csv(pathToWirte)
-print('Reduced datset length', len(dataCheck))
+	if isPossibleToSplit(len(data), numTrainInstances, numTestInstances):
+		trainDataset = data.head(n=numTrainInstances)
+		testDataset = data.tail(n=numTestInstances)
+
+		trainDataset.to_csv(pathToWrite + f'Suicide_Detection_train{numTrainInstances}(test{numTestInstances}).csv', index=False)
+		testDataset.to_csv(pathToWrite + f'Suicide_Detection_test{numTestInstances}(train{numTrainInstances}).csv', index=False)
+
+
+if __name__ == '__main__':
+	datsetPath = sys.argv[1]
+	numTrainInstances = int(sys.argv[2])
+	numTestInstances = int(sys.argv[3])
+	pathToWrite = sys.argv[4]
+
+	reduceDataset(datsetPath, numTrainInstances, numTestInstances, pathToWrite)

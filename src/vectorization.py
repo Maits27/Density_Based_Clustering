@@ -48,11 +48,11 @@ def bertTransformer(rawData):
         embedding = output[0][0].numpy()
         embeddingList.append(embedding)
 
-        print('Each embedding has:', len(embeddingList[0]), 'dimensions')
-        print('Embedding list length (before save):', len(embeddingList))
-        npEmbeddingList = np.array(embeddingList)
-        saveEmbeddings(npEmbeddingList, len(embeddingList[0]), type='bert')
+    print('Each embedding has:', len(embeddingList[0]), 'dimensions')
+    print('Embedding list length (before save):', len(embeddingList))
+    npEmbeddingList = np.array(embeddingList)
+    saveEmbeddings(npEmbeddingList, len(embeddingList[0]), type='bert')
 
-        # Check
-        loadedEmbeddings = loadEmbeddings(len(embeddingList), len(embeddingList[0]), type='bert')
-        print('Embedding list length (after save)', len(loadedEmbeddings))
+    # Check
+    loadedEmbeddings = loadEmbeddings(len(embeddingList), len(embeddingList[0]), type='bert')
+    print('Embedding list length (after save)', len(loadedEmbeddings))
