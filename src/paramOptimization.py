@@ -36,27 +36,6 @@ def heuristicoEpsilonDBSCAN(nInstances, dimension):
     plt.show()
 
 
-def distance_distribution(nInstances, dimension):
-    pares_calculados = set()
-    distancias = []
-    ema = [0] * 10
-    embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension, type='bert')
-    for i, doc in enumerate(embeddingVectors):
-        for j, doc2 in enumerate(embeddingVectors):
-            if j != i:
-                if (pair := '_'.join(sorted([str(i), str(j)]))) not in pares_calculados:
-                    distancias.append(np.linalg.norm(doc - doc2))
-                    pares_calculados.add(pair)
-    for dist in distancias:
-        index = int(dist/5)
-        if index>10: ema[9] = ema[9]+1
-        else: ema[index] = ema[index]+1
-    print(f'LOS TARTES DE LAS DISTANCIAS: {ema}')
-    fig = px.histogram(x=distancias, nbins=20)
-    fig.write_image(f"../img/Distancias_I{nInstances}_D{dimension}.png")
-    fig.show()
-
-
 def barridoDBSCAN(nInstances, dimension, espilonList, minPtsList):
     # Load vectors
     embeddingVectors = loadEmbeddings(length=nInstances, dimension=dimension)
@@ -149,12 +128,16 @@ def barridoDBSCANOPtuna(nInstances, dimension):
               silhouette=best_silhouette)
 
 
-#barridoDBSCANOPtuna(nInstances=10000, dimension=768)
-
-# print(len(loadEmbeddings(length=1000, dimension=150)))
-# barridoDBSCAN(nInstances=1000,
-#               dimension=150,
-#               espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
-#               minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
-# heuristicoEpsilonDBSCAN(nInstances=20000, dimension=150)
-# distance_distribution(nInstances=10000, dimension=768)
+if __name__ == '__main__':
+    if sys.argv[1] == 'optuna':
+        barridoDBSCANOPtuna(nInstances=sys.argv[2], dimension=sys.argv[3])
+    elif sys.argv[1] == 'heuristic':
+        heuristicoEpsilonDBSCAN(nInstances=sys.argv[2], dimension=sys.argv[3])
+    elif sys.argv[1] == 'barridoDBSCAN':
+        barridoDBSCAN(nInstances=sys.argv[2],
+                      dimension=sys.argv[3],
+                      espilonList=[0.05, 1, 2, 3, 4, 5, 10, 20, 50, 100, 500],
+                      minPtsList=[25, 50, 75, 100, 125, 150, 175, 200])
+    else:
+        print('Error in passing arguments')
+        print('Execution example: paramOptimization.py optuna 10000 768')
