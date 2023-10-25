@@ -56,4 +56,5 @@ def bertTransformer(rawData):
     # Check
     loadedEmbeddings = loadEmbeddings(len(embeddingList), len(embeddingList[0]), type='bert')
     print('Embedding list length (after save)', len(loadedEmbeddings))
+    
     return loadedEmbeddings
