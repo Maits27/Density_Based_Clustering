@@ -1,21 +1,10 @@
-import pandas as pd
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.manifold import TSNE
 from tqdm import tqdm
-import time
 
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
 
-from gensim.models import Doc2Vec
-from gensim.models.doc2vec import TaggedDocument
-from gensim.test.utils import get_tmpfile
 from sklearn.metrics.pairwise import cosine_similarity
-
-from loadSaveData import saveEmbeddings, saveTokens, loadEmbeddings, loadTokens
-from evaluation import classToCluster, wordCloud
-
 
 def distance(vector1, vector2):
     return np.linalg.norm(vector1 - vector2)
@@ -265,7 +254,7 @@ class DBScanOriginal:
 
     def ejecutarAlgoritmo(self):
         # Aplicar DBSCAN a los vectores de documentos
-        dbscan = DBSCAN(eps=self.epsilon, min_samples=self.minPt)  # Ajusta los parámetros según tu caso
+        dbscan = DBSCAN(eps=self.epsilon, min_samples=self.minPt, metric='cosine')  # Ajusta los parámetros según tu caso
         self.clusters = dbscan.fit_predict(self.vectors)
 
     def imprimir(self):

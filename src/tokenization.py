@@ -20,3 +20,19 @@ def tokenize(textos):
     saveTokens(textos_token)
 
     return textos_token
+
+
+def tokenizarSinLimpiar(rawText):
+    """
+    Este 
+    """
+    textos_token = []
+
+    nlp = spacy.load("en_core_web_sm")  # Cargar modelo
+    for texto in tqdm(rawText, desc="Procesando textos"):
+        doc = nlp(texto)
+        tokens_palabras = [token.text for token in doc]
+        textos_token.append(tokens_palabras)
+    saveTokens(textos_token)
+
+    return textos_token
