@@ -75,7 +75,7 @@ def loadSinLimpiarTokens(length):
     print('Cargando sin limpiar tokens')
     textosTokenizados = []
 
-    with open(f'../out/tokens/tokens_sinlimpiar{length}.tok', 'r') as file:
+    with open(f'../out/tokens/tokens_sinlimpiar{length}.tok', 'r', encoding='utf-8') as file:
         textoActual = []
         for line in file:
             if line == '####\n':
