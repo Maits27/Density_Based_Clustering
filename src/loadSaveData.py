@@ -84,13 +84,20 @@ def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, min
 
 
 def saveDistances(distancesDict, nInstances, dimensiones):
-    with open(f'../out/distances/distances{nInstances}_dim{dimensiones}.json', "w", encoding="utf-8") as archivo:
-        json.dump(distancesDict, archivo, ensure_ascii=False)
-    print('Distancias guardadas en JSON')
+    ruta = Path(f'../out/distances/distances{nInstances}_dim{dimensiones}.json')
+    if not ruta.exists():
+        with open(f'../out/distances/distances{nInstances}_dim{dimensiones}.json', "w", encoding="utf-8") as archivo:
+            json.dump(distancesDict, archivo, ensure_ascii=False)
+        print('Distancias guardadas en JSON')
 
 
 def loadDistances(nInstances, dimensions):
-    return json.loads(f'../out/distances/distances{nInstances}_dim{dimensions}.json')
+    path = Path(f'../out/distances/distances{nInstances}_dim{dimensions}.json')
+    if path.exists():
+        with open(path, "r") as f:
+            return json.load(f)
+    else:
+        return False
     
 
 #formatoParaEmbeddingProjector(250, 10000) #TODO esto no sé qué hace aquí
