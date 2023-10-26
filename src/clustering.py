@@ -55,12 +55,12 @@ class DensityAlgorithmUrruela:
                 print('\tDistancias encontradas y cargadas desde archivo')
                 self.distancias = loadDistances(nInstances=len(self.vectors), dimensions=self.dimensiones)
 
-        print(f'TOTAL DE {len(self.distancias)} DISTANCIAS CALCULADAS')
+        print(f'\tTOTAL DE {len(self.distancias)} DISTANCIAS CALCULADAS')
         saveDistances(self.distancias, nInstances=len(self.vectors), dimensiones=self.dimensiones)
 
 
     def buscarNucleos(self):
-        for i, _ in tqdm(enumerate(self.vectors), desc='\tBUSCANDO NUCLEOS'):
+        for i, _ in tqdm(enumerate(self.vectors), desc=f'\tBUSCANDO NUCLEOS, total de {len(self.vectors)}'):
             v = []
             for j, _ in enumerate(self.vectors):
                 if j != i and self.distancias.get('_'.join(sorted([str(i), str(j)]))) <= self.epsilon:

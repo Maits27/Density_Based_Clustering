@@ -1,5 +1,5 @@
 #from loadSaveData import loadEmbeddings, loadRAW
-from loadSaveData import loadEmbeddings, loadRAW, loadRAWwithClass
+from loadSaveData import loadEmbeddings, loadRAW, loadRAWwithClass, loadSinLimpiarTokens
 from clustering import DBScanOriginal, DensityAlgorithmUrruela
 from tokenization import tokenizarSinLimpiar
 from evaluation import wordCloud, classToCluster
@@ -9,12 +9,13 @@ import torch # PyTorch
 
 if __name__ == '__main__':
     # Probar modelo
-    vectors = loadEmbeddings(length=100, dimension=768, type='bert')
-    algoritmo = DensityAlgorithmUrruela(vectors=vectors, epsilon=0.7262, minPt=3, dim=768)
+    vectors = loadEmbeddings(length=10000, dimension=768, type='bert')
+    algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.8082, minPt=4) # dim=768
     algoritmo.ejecutarAlgoritmo()
 
-    rawData = loadRAWwithClass('../Datasets/Suicide_Detection100.csv')
-    tokenTexts = tokenizarSinLimpiar(rawData['text'])
+    rawData = loadRAWwithClass('../Datasets/Suicide_Detection10000.csv')
+    tokenTexts = loadSinLimpiarTokens(10000)
+    #tokenTexts = tokenizarSinLimpiar(rawData['text'])
 
     wordCloud(algoritmo.clusters, textos_tokenizados=tokenTexts)
     classToCluster(data=rawData, clusters=algoritmo.clusters)

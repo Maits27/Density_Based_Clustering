@@ -56,6 +56,34 @@ def loadTokens(length):
     return textosTokenizados
 
 
+def saveSinLimpiarTokens(textosTokenizados):
+    length = len(textosTokenizados)
+    ruta = Path(f'../out/tokens/tokens_sinlimpiar{length}.tok')
+    if not ruta.exists():
+        with open(ruta, "w", encoding="utf-8") as file:
+            for texto in textosTokenizados:
+                file.write('####\n')
+                for token in texto:
+                    file.write(token + "\n")
+
+
+def loadSinLimpiarTokens(length):
+    print('Cargando sin limpiar tokens')
+    textosTokenizados = []
+
+    with open(f'../out/tokens/tokens_sinlimpiar{length}.tok', 'r') as file:
+        textoActual = []
+        for line in file:
+            if line == '####\n':
+                textoActualAux = textoActual.copy()
+                textosTokenizados.append(textoActualAux)
+                textoActual.clear()
+            else:
+                textoActual.append(line.replace('\n',''))
+
+    return textosTokenizados
+
+
 def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
     print('Guardando embeddings...')
     length = len(textEmbeddings)
@@ -92,6 +120,7 @@ def saveDistances(distancesDict, nInstances, dimensiones):
 
 
 def loadDistances(nInstances, dimensions):
+    print('Cargando distancias')
     path = Path(f'../out/distances/distances{nInstances}_dim{dimensions}.json')
     if path.exists():
         with open(path, "r") as f:
