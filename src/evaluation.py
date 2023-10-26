@@ -93,6 +93,8 @@ def getClusterSample(clusterList, numClusters, rawData, sample=10):
         if _areEnoughSamples(foundInstancesForEachCluster, numClusters,sample):
             _printSamples(foundInstancesForEachCluster)
             return foundInstancesForEachCluster
+    _printSamples(foundInstancesForEachCluster)
+    return foundInstancesForEachCluster
 
 
 def _areEnoughSamples(dict, numClusters,sample):
