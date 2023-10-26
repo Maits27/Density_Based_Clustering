@@ -7,3 +7,6 @@ src/__pycache__
 
 # Large files
 out/distances/distances1000*
+
+# Temp images
+img/tmp/*

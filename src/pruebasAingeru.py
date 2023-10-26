@@ -11,8 +11,8 @@ from vectorization import bertTransformer
 if __name__ == '__main__':
     # Probar modelo
     vectors = loadEmbeddings(length=10000, dimension=768, type='bert')
-    algoritmo = DensityAlgorithmUrruela(vectors=vectors, epsilon=2.567, minPt=12, dim=768) # dim=768
-    #algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.007, minPt=9) # dim=768
+    #algoritmo = DensityAlgorithmUrruela(vectors=vectors, epsilon=0.6178, minPt=21, dim=768) # dim=768
+    algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.0918, minPt=5) # dim=768
     algoritmo.ejecutarAlgoritmo()
 
     rawData = loadRAWwithClass('../Datasets/Suicide_Detection10000.csv')
@@ -20,12 +20,12 @@ if __name__ == '__main__':
     tokenTexts = loadSinLimpiarTokens(10000)
     #tokenTexts = tokenizarSinLimpiar(rawData['text'])
 
-    #wordCloud(algoritmo.clusters, textos_tokenizados=tokenTexts)
+    wordCloud(algoritmo.clusters, textos_tokenizados=tokenTexts)
     classToCluster(data=rawData, clusters=algoritmo.clusters)
     getClusterSample(clusterList=algoritmo.clusters, 
                      numClusters=algoritmo.getNumClusters(),
                      rawData=rawDataWithoutClass,
-                     sample=4)
+                     sample=5)
 
 
     # Try fake dataset

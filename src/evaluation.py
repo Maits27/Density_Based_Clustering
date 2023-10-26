@@ -61,6 +61,7 @@ def classToCluster(data, clusters):
     plt.ylabel("Cluster")
 
     plt.title("Class2Cluster Matrix")
+    plt.savefig(f'../img/tmp/matrix')
     plt.show()
 
 
@@ -80,6 +81,7 @@ def wordCloud(clusters, textos_tokenizados):
         wc = WordCloud(width=300, height=300).generate(palabras_del_cluster[i])
         plt.axis("off")
         plt.imshow(wc, interpolation="bilinear")
+        plt.savefig(f'../img/tmp/wordCloud{i - 1}')
         plt.show()
 
     
