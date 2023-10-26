@@ -2,23 +2,41 @@
 from loadSaveData import loadEmbeddings, loadRAW, loadRAWwithClass, loadSinLimpiarTokens
 from clustering import DBScanOriginal, DensityAlgorithmUrruela
 from tokenization import tokenizarSinLimpiar
-from evaluation import wordCloud, classToCluster
+from evaluation import wordCloud, classToCluster, getClusterSample
 from transformers import AutoTokenizer, RobertaModel # library by HuggingFace
 import torch # PyTorch
+from vectorization import bertTransformer
 
 
 if __name__ == '__main__':
     # Probar modelo
     vectors = loadEmbeddings(length=10000, dimension=768, type='bert')
-    algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.8082, minPt=4) # dim=768
+    algoritmo = DensityAlgorithmUrruela(vectors=vectors, epsilon=0.8361, minPt=22, dim=768) # dim=768
+    #algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.007, minPt=9) # dim=768
     algoritmo.ejecutarAlgoritmo()
 
     rawData = loadRAWwithClass('../Datasets/Suicide_Detection10000.csv')
+    rawDataWithoutClass = loadRAW('../Datasets/Suicide_Detection10000.csv')
     tokenTexts = loadSinLimpiarTokens(10000)
     #tokenTexts = tokenizarSinLimpiar(rawData['text'])
 
-    wordCloud(algoritmo.clusters, textos_tokenizados=tokenTexts)
+    #wordCloud(algoritmo.clusters, textos_tokenizados=tokenTexts)
     classToCluster(data=rawData, clusters=algoritmo.clusters)
+    getClusterSample(clusterList=algoritmo.clusters, 
+                     numClusters=algoritmo.getNumClusters(),
+                     rawData=rawDataWithoutClass,
+                     sample=4)
+
+
+    # Try fake dataset
+    """data = loadRAW('../Datasets/Suicide_Detection10000.csv')
+    vectors = bertTransformer(rawData=data)
+    algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.5, minPt=9) # dim=768
+
+
+    wordCloud(algoritmo.clusters, textos_tokenizados=tokenTexts)
+    classToCluster(data=rawData, clusters=algoritmo.clusters)"""
+
 
     # Tokenización
     """tokenizer = AutoTokenizer.from_pretrained('cardiffnlp/twitter-xlm-roberta-base', use_fast=True)

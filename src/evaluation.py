@@ -82,3 +82,35 @@ def wordCloud(clusters, textos_tokenizados):
         plt.axis("off")
         plt.imshow(wc, interpolation="bilinear")
         plt.show()
+
+    
+def getClusterSample(clusterList, numClusters, rawData, sample=10):
+    foundInstancesForEachCluster = {}
+    for index, instance in enumerate(clusterList):
+        if instance not in foundInstancesForEachCluster:
+            foundInstancesForEachCluster[instance] = [rawData[index]]
+        elif len(foundInstancesForEachCluster[instance]) != sample:
+            foundInstancesForEachCluster[instance].append(rawData[index])
+        if _areEnoughSamples(foundInstancesForEachCluster, numClusters,sample):
+            return foundInstancesForEachCluster
+    _printSamples(foundInstancesForEachCluster)
+
+
+def _areEnoughSamples(dict, numClusters,sample):
+    if len(dict.keys()) == numClusters:
+        for key in dict.keys():
+            if len(dict[key]) < sample:
+                return False
+        return True
+    else:
+        return False        
+    
+
+def _printSamples(samplesDict):
+    for key in samplesDict.keys():
+        print(f'### Cluster {key} ###')
+        for index, text in enumerate(samplesDict[key]):
+            print(f'\t### Instance {index} ###')
+            print(f'\t{text}')
+            print('\n\n')
+        print('\n\n\n')
