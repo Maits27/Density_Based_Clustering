@@ -2,9 +2,20 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import csv
+import json
+
+
+def loadRAWwithClass(path):
+    """
+    Devuelve un dataset con texto y clase
+    """
+    return pd.read_csv(path)
 
 
 def loadRAW(path):
+    """
+    Devuelve un dataset con solo los textos
+    """
     data = pd.read_csv(path)
     return [instancia[1] for instancia in data.values]
         
@@ -70,5 +81,16 @@ def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, min
     with open(f'../out/Barridos/TRANSFORMERSBarridos_D{dimension}_Epsilon{espilon}.csv', 'w', encoding='utf8') as file:
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
+
+
+def saveDistances(distancesDict, nInstances, dimensiones):
+    with open(f'../out/distances/distances{nInstances}_dim{dimensiones}.json', "w", encoding="utf-8") as archivo:
+        json.dump(distancesDict, archivo, ensure_ascii=False)
+    print('Distancias guardadas en JSON')
+
+
+def loadDistances(nInstances, dimensions):
+    return json.loads(f'../out/distances/distances{nInstances}_dim{dimensions}.json')
+    
 
 #formatoParaEmbeddingProjector(250, 10000) #TODO esto no sé qué hace aquí

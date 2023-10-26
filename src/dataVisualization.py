@@ -1,14 +1,17 @@
-import sys
-
 import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_score
-from sklearn.neighbors import NearestNeighbors
-from clustering import DensityAlgorithm, DBScanOriginal
 import numpy as np
 from loadSaveData import loadEmbeddings
-import csv
-import optuna
 import plotly.express as px
+from sklearn.decomposition import PCA
+
+
+def classDistribution(rawData):
+    barPlot = plt.bar(rawData['class'].value_counts().index, rawData['class'].value_counts())
+    plt.xlabel('Classes')
+    plt.ylabel('Frequency')
+    plt.bar_label(barPlot)
+    plt.show()
+
 
 def distance_distribution(nInstances, dimension):
     pares_calculados = set()
@@ -30,8 +33,11 @@ def distance_distribution(nInstances, dimension):
     fig.show()
 
 
-def PCA():
-    pass
+def PCA(dimensions, data):
+    pca = PCA(n_components=dimensions,random_state=42)
+    pca.fit(data)
+    dataReduced = pca.transform(data)
+    return dataReduced
 
 
 def tSNE():

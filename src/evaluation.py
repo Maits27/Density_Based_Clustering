@@ -31,6 +31,9 @@ def clase_a_num(data):
 
 
 def classToCluster(data, clusters):
+    """
+    data: tiene que ser un dataframe con un campo 'text' y 'class'
+    """
     cm = confusion_matrix(clusters, clase_a_num(data))
     # Supongamos que tienes 20 grupos y 2 clases
     num_groups = len(set(clusters))
