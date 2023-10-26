@@ -52,7 +52,7 @@ def classToCluster(data, clusters):
     plt.yticks(np.arange(num_groups), [f' {i}' for i in range(min(clusters), max(clusters) + 1)])
     thresh = cm.max() / 2.
 
-    for i in range(min(clusters), max(clusters) + 1):
+    for i in range(len(set(clusters))):
         for j in range(num_classes):
             plt.text(j, i, format(cm[i][j], 'd'), horizontalalignment="center",
                      color="white" if cm[i, j] > thresh else "black")
