@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from loadSaveData import readRAW
+from loadSaveData import loadRAW
 import sys
 
 
@@ -9,7 +9,7 @@ def isPossibleToSplit(totalInstances, numTrainInstances, numTestInstances):
 
 
 def reduceDataset(path, numTrainInstances, numTestInstances, pathToWrite):
-	data = readRAW(path)
+	data = loadRAW(path)
 
 	if isPossibleToSplit(len(data), numTrainInstances, numTestInstances):
 		trainDataset = data.head(n=numTrainInstances)

@@ -8,7 +8,8 @@ import evaluation
 from loadSaveData import loadEmbeddings
 from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
-def get_train_and_test():
+from sklearn.decomposition import PCA
+def create_embeddings():
 
     # GENERATE TEST.CSV --> reduceDataset.py
 
@@ -22,100 +23,167 @@ def get_train_and_test():
     test = vectorizationMode(rawData)
     return train,test
 
-def dbscan_clustering(data):
+def make_clustering(data):
     # Clustering
-    clusteringAlgorithm = clustering.DBScanOriginal # DensityAlgorithmUrruela, DensityAlgorithm, DensityAlgorithm2, DBScanOriginal
-    epsilon = 4
-    minPts = 5
-    algoritmo = clusteringAlgorithm(data, epsilon=epsilon, minPt=minPts)
+    clusteringAlgorithm = clustering.DensityAlgorithmUrruela # DensityAlgorithmUrruela, DensityAlgorithm, DensityAlgorithm2, DBScanOriginal
+    epsilon = 0.05
+    minPts = 3
+    algoritmo = clusteringAlgorithm(data, epsilon=epsilon, minPt=minPts,dim=768)
     algoritmo.ejecutarAlgoritmo()
     algoritmo.imprimir()
     clusters = algoritmo.clusters
 
     return clusters
-"""
 
-x_test=pd.read_csv('../Datasets/Suicide_Detection100_test.csv')
-print(x_test.head())
-# Contar el número de instancias por clase
-class_counts = x_test['class'].value_counts()
+def load_embeddings():
+    train = loadEmbeddings(length=10000, dimension=768, type='bert')
+    test = loadEmbeddings(length=100, dimension=768, type='bert')
+    return train,test
 
-# Crear un gráfico de barras
-plt.figure(figsize=(10, 6))  # Ajusta el tamaño del gráfico
-class_counts.plot(kind='bar')
+def visualizar_instancias_por_clase():
 
-# Imprimir el número exacto de instancias por clase
-print(class_counts)
-plt.title('Número de Instancias por Clase')
-plt.xlabel('Clase')
-plt.ylabel('Número de Instancias')
-plt.show()
-"""
+    x_test=pd.read_csv('../Datasets/Suicide_Detection100_test.csv')
+    class_counts = x_test['class'].value_counts()
+    print(class_counts)
 
-train,test=get_train_and_test()
-
-# estas dos lineas para cuando ya tienes creados los embeddings
-#train=loadEmbeddings(length=10000,dimension=768,type='bert')
-#test=loadEmbeddings(length=100,dimension=768,type='bert')
-
-clusters=dbscan_clustering(train)
+    # Crear un gráfico de barras
+    plt.figure(figsize=(10, 6))  # Ajusta el tamaño del gráfico
+    class_counts.plot(kind='bar')
+    plt.title('Número de Instancias por Clase')
+    plt.xlabel('Clase')
+    plt.ylabel('Número de Instancias')
+    plt.show()
 
 
-"""
-for i in range(len(train)):
-    if clusters[i]==1:
-        print(i)
-# instancias del clsuter 1 --> 390, 936, 3777, 4084, 4510, 7968
-"""
-#añadimos al test por ejemplo esas dos instancias (para que tenga alguna de train)
-test = np.vstack((test, train[4084]))
-test = np.vstack((test, train[4510]))
-
-#habria que buscar instancias ruido
+def buscar_instancias_cluster(train,clusters, clusterNum):
+    for i in range(len(train)):
+        if clusters[i] == clusterNum:
+            print(i)
 
 
-for test_instance in test:
-        distancias=1- cosine_similarity(test_instance.reshape(1,-1),train)[0]
-        instanciaCercana = np.argmin(distancias)
-        clusters_asignado=clusters[instanciaCercana]
-        print("La instancia se ha asignado al cluster ",clusters_asignado)
+def add_instances_to_test (train,test,instances):
+    for i in range(len(train)):
+        for instance in instances:
+            if i==instance:
+                test= np.vstack((test, train[i]))
+    return test
+
+def asignar_cluster_test_instancia(train,test,clusters):
+    clusters_test=[]
+    for test_instance in test:
+            distancias=1- cosine_similarity(test_instance.reshape(1,-1),train)[0]
+            instanciaCercana = np.argmin(distancias)
+            cluster_asignado=clusters[instanciaCercana]
+            clusters_test.append(cluster_asignado)
+    return clusters_test
+
+def asignar_cluster_test_centroide(train,test,clusters):
+    clusters_test = []
+    centroides = []
+    for label in set(clusters):
+        if label != -1:
+            instanciasCluster = train[clusters == label]
+            centroide = instanciasCluster.mean(axis=0)
+            centroides.append(centroide)
+
+    for test_instance in test:
+        distancias = 1 - cosine_similarity(test_instance.reshape(1, -1), centroides)[0]
+        cluster_asignado = np.argmin(distancias)
+        clusters_test.append(cluster_asignado)
+    return clusters_test,centroides
 
 
-#REDUCIR DIMESIONES
-from sklearn.decomposition import PCA
-print('Dim train originally: ',np.array(train).shape)
-pca = PCA(n_components=2,random_state=42)
-pca.fit(train)
-train_reducido = pca.transform(train)
-print('Dim train after PCA: ',train_reducido.shape)
+def reducir_dim(train, test,centroides):
+    print('Dim train originally: ', np.array(train).shape)
+    pca = PCA(n_components=2, random_state=42)
+    pca.fit(train)
+    train_reducido = pca.transform(train)
+    print('Dim train after PCA: ', train_reducido.shape)
 
-print('Dim test originally: ',np.array(test).shape)
-test_reducido = pca.transform(test)
-print('Dim train after PCA: ',test_reducido.shape)
+    print('Dim test originally: ', np.array(test).shape)
+    test_reducido = pca.transform(test)
+    print('Dim test after PCA: ', test_reducido.shape)
 
+    print('Dim centroides originally: ', np.array(centroides).shape)
+    centroides_reducidos = pca.transform(centroides)
+    print('Dim centroides after PCA: ', centroides_reducidos.shape)
 
-#GRAFICO
-unique_labels = set(clusters) - {-1}
-
-colores = ['g', 'r', 'c', 'm', 'y', 'k', 'orange', 'purple', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
-plt.figure(figsize=(14, 12))
-
-# ruido
-noise_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == -1])
-plt.scatter(noise_points[:, 0], noise_points[:, 1], c='blue', label='Noise')
-
-# instancias train cluster
-for label in unique_labels:
-    cluster_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == label])
-    plt.scatter(cluster_points[:, 0], cluster_points[:, 1], c=colores[label % len(colores)], label=f'Cluster {label}')
-
-# instancias test cluster
-test_points=np.array([test_reducido[i] for i in range(len(test_reducido))])
-plt.scatter(test_points[:, 0], test_points[:, 1], c='red', marker='x',s=200, label='Centroide')
+    return train_reducido, test_reducido,centroides_reducidos
 
 
-plt.title('Gráfico de Densidad basado en DBSCAN')
-plt.xlabel('Dimensión X')
-plt.ylabel('Dimensión Y')
-plt.legend()
-plt.show()
+def grafico_instancia(train_reducido, clusters, test_reducido, clusters_test):
+    colores = ['g', 'r', 'purple', 'y', 'k', 'orange', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    plt.figure(figsize=(16, 14))
+
+    # TRAIN
+    unique_labels = set(clusters) - {-1}
+
+    # ruido
+    noise_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == -1])
+    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='blue', label='Noise')
+
+    # instancias train cluster
+    for label in unique_labels:
+        cluster_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == label])
+        plt.scatter(cluster_points[:, 0], cluster_points[:, 1], c=colores[label % len(colores)],
+                    label=f'Cluster {label}')
+
+    # TEST
+    colores = ['lime', 'pink', 'orange', 'purple', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    unique_labels = set(clusters_test) - {-1}
+
+    # ruido
+    noise_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == -1])
+    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='c', label='Noise Test')
+
+    # instancias test cluster
+    for label in unique_labels:
+        cluster_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == label])
+        plt.scatter(cluster_points[:, 0], cluster_points[:, 1], c=colores[label % len(colores)], label=f'Cluster {label} test')
+
+    plt.title('Gráfico de Densidad basado en DBSCAN')
+    plt.xlabel('Dimensión X')
+    plt.ylabel('Dimensión Y')
+    plt.legend()
+    plt.show()
+
+
+def grafico_centroide(train_reducido, clusters, test_reducido, clusters_test,centroides_reducidos):
+    colores = ['g', 'r', 'purple', 'y', 'k', 'orange', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    plt.figure(figsize=(16, 14))
+
+    # TRAIN
+    unique_labels = set(clusters) - {-1}
+
+    # ruido
+    noise_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == -1])
+    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='blue', label='Noise')
+
+    # instancias train cluster
+    for label in unique_labels:
+        cluster_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == label])
+        plt.scatter(cluster_points[:, 0], cluster_points[:, 1], c=colores[label % len(colores)],
+                    label=f'Cluster {label}')
+
+    # TEST
+    colores = ['lime', 'pink', 'orange', 'purple', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    unique_labels = set(clusters_test) - {-1}
+
+    # ruido
+    noise_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == -1])
+    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='c', label='Noise Test')
+
+    # instancias test cluster
+    for label in unique_labels:
+        cluster_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == label])
+        plt.scatter(cluster_points[:, 0], cluster_points[:, 1], c=colores[label % len(colores)], label=f'Cluster {label} test')
+
+    #centroides
+    centroides_points = np.array([centroides_reducidos[i] for i in range(len(centroides_reducidos))])
+    plt.scatter(centroides_points[:, 0], centroides_points[:, 1], c='gray', marker='x', s=400, label='Centroide')
+
+    plt.title('Gráfico de Densidad basado en DBSCAN')
+    plt.xlabel('Dimensión X')
+    plt.ylabel('Dimensión Y')
+    plt.legend()
+    plt.show()
