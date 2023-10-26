@@ -49,14 +49,13 @@ def classToCluster(data, clusters):
 
     # Personalizar el eje x y el eje y para mostrar los grupos y las clases
     plt.xticks(np.arange(num_classes), [f'Class {nombres_clases[i]}' for i in range(num_classes)])
-    plt.yticks(np.arange(num_groups), np.unique(clusters))
+    plt.yticks(np.arange(num_groups), [f' {i}' for i in range(min(clusters), max(clusters) + 1)])
     thresh = cm.max() / 2.
 
-    for i in range(num_groups):
+    for i in range(min(clusters), max(clusters) + 1):
         for j in range(num_classes):
             plt.text(j, i, format(cm[i][j], 'd'), horizontalalignment="center",
                      color="white" if cm[i, j] > thresh else "black")
-
     # Etiquetas para los ejes
     plt.xlabel("Class")
     plt.ylabel("Cluster")
