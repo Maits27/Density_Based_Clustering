@@ -6,6 +6,10 @@ from sklearn.cluster import KMeans
 
 from sklearn.metrics.pairwise import cosine_similarity
 
+from scipy import spatial
+
+from loadSaveData import saveDistances, loadDistances
+
 def distance(vector1, vector2):
     return np.linalg.norm(vector1 - vector2)
 
@@ -27,6 +31,7 @@ class DensityAlgorithmUrruela:
 
     def ejecutarAlgoritmo(self):
 
+        print('Ejecutando algoritmo:')
         self.calcular_distancias()
 
         self.buscarNucleos()
@@ -37,22 +42,25 @@ class DensityAlgorithmUrruela:
         self.reasignarLabelCluster()
 
     def calcular_distancias(self):
-        print('CALCULANDO DISTANCIAS')
-        if len(self.distancias)==0:
-            for i, doc in enumerate(self.vectors):
-                for j, doc2 in enumerate(self.vectors):
-                    if j != i:
-                        if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
-                            distEuc = np.linalg.norm(doc - doc2) # 1-cosine_similarity([doc], [doc2])
-                            self.distancias[pair] = distEuc
-        print(f'TOTAL DE {len(self.distancias)} DISTANCIAS CALCULADAS')
+        if len(self.distancias) == 0:
+            if loadDistances(nInstances=len(self.vectors), dimensions=self.dimensiones) == False:
+                for i, doc in tqdm(enumerate(self.vectors), desc=f'\tCALCULANDO DISTANCIAS, total de {len(self.vectors)}'):
+                    for j, doc2 in enumerate(self.vectors):
+                        if j != i:
+                            if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
+                                # dist = np.linalg.norm(doc - doc2) # 1-cosine_similarity([doc], [doc2])
+                                dist = 1 - spatial.distance.cosine(doc, doc2)
+                                self.distancias[pair] = dist
+            else:
+                print('\tDistancias encontradas y cargadas desde archivo')
+                self.distancias = loadDistances(nInstances=len(self.vectors), dimensions=self.dimensiones)
 
-            # with open(archivoPath, "w", encoding="utf-8") as archivo:
-            #     # Utilizar json.dump() para escribir el diccionario en el archivo
-            #     json.dump(self.distancias, archivo, ensure_ascii=False)
+        print(f'\tTOTAL DE {len(self.distancias)} DISTANCIAS CALCULADAS')
+        saveDistances(self.distancias, nInstances=len(self.vectors), dimensiones=self.dimensiones)
+
 
     def buscarNucleos(self):
-        for i, _ in enumerate(self.vectors):
+        for i, _ in tqdm(enumerate(self.vectors), desc=f'\tBUSCANDO NUCLEOS, total de {len(self.vectors)}'):
             v = []
             for j, _ in enumerate(self.vectors):
                 if j != i and self.distancias.get('_'.join(sorted([str(i), str(j)]))) <= self.epsilon:

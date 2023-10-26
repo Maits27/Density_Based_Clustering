@@ -3,7 +3,7 @@ import sys
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score, adjusted_rand_score
 from sklearn.neighbors import NearestNeighbors
-from clustering import DensityAlgorithm, DBScanOriginal
+from clustering import DBScanOriginal, DensityAlgorithmUrruela
 import numpy as np
 from loadSaveData import loadEmbeddings, saveInCSV, saveInCSV2
 import csv
@@ -68,12 +68,12 @@ def barridoDoc2Vec(dimensionList):
 
 
 def objective(trial, loadedEmbedding):
-    epsilon = trial.suggest_float('epsilon', 0, 5.0, step=0.001)
-    minPt = trial.suggest_int('minPt', 4, 12)
+    epsilon = trial.suggest_float('epsilon', 0.005, 1.0, step=0.0001)
+    minPt = trial.suggest_int('minPt', 5, 16)
 
 
     # Utiliza los valores sugeridos por Optuna para la ejecución
-    algoritmo = DBScanOriginal(loadedEmbedding, epsilon=epsilon, minPt=minPt)
+    algoritmo = DensityAlgorithmUrruela(loadedEmbedding, epsilon=epsilon, minPt=minPt)
     algoritmo.ejecutarAlgoritmo()
 
     optunaNCluster = algoritmo.getNumClusters()

@@ -2,6 +2,14 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import csv
+import json
+
+
+def loadRAWwithClass(path):
+    """
+    Devuelve un dataset con texto y clase
+    """
+    return pd.read_csv(path)
 
 def loadRAWwithClass(path):
     """
@@ -9,6 +17,9 @@ def loadRAWwithClass(path):
     """
     return pd.read_csv(path)
 def loadRAW(path):
+    """
+    Devuelve un dataset con solo los textos
+    """
     data = pd.read_csv(path)
     return [instancia[1] for instancia in data.values]
         
@@ -37,6 +48,34 @@ def loadTokens(length):
     textosTokenizados = []
 
     with open(f'../out/tokens/tokens{length}.tok', 'r') as file:
+        textoActual = []
+        for line in file:
+            if line == '####\n':
+                textoActualAux = textoActual.copy()
+                textosTokenizados.append(textoActualAux)
+                textoActual.clear()
+            else:
+                textoActual.append(line.replace('\n',''))
+
+    return textosTokenizados
+
+
+def saveSinLimpiarTokens(textosTokenizados):
+    length = len(textosTokenizados)
+    ruta = Path(f'../out/tokens/tokens_sinlimpiar{length}.tok')
+    if not ruta.exists():
+        with open(ruta, "w", encoding="utf-8") as file:
+            for texto in textosTokenizados:
+                file.write('####\n')
+                for token in texto:
+                    file.write(token + "\n")
+
+
+def loadSinLimpiarTokens(length):
+    print('Cargando sin limpiar tokens')
+    textosTokenizados = []
+
+    with open(f'../out/tokens/tokens_sinlimpiar{length}.tok', 'r') as file:
         textoActual = []
         for line in file:
             if line == '####\n':
@@ -83,4 +122,22 @@ def saveClusters(clusters,name):
 def loadClusters(name):
     return np.load(f'../out/cluster_labels/clusters_{name}.npy')
 
-#formatoParaEmbeddingProjector(250, 10000)
+def saveDistances(distancesDict, nInstances, dimensiones):
+    ruta = Path(f'../out/distances/distances{nInstances}_dim{dimensiones}.json')
+    if not ruta.exists():
+        with open(f'../out/distances/distances{nInstances}_dim{dimensiones}.json', "w", encoding="utf-8") as archivo:
+            json.dump(distancesDict, archivo, ensure_ascii=False)
+        print('Distancias guardadas en JSON')
+
+
+def loadDistances(nInstances, dimensions):
+    print('Cargando distancias')
+    path = Path(f'../out/distances/distances{nInstances}_dim{dimensions}.json')
+    if path.exists():
+        with open(path, "r") as f:
+            return json.load(f)
+    else:
+        return False
+    
+
+#formatoParaEmbeddingProjector(250, 10000) #TODO esto no sé qué hace aquí

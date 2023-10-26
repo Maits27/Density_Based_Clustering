@@ -1,5 +1,5 @@
 import spacy
-from loadSaveData import saveTokens
+from loadSaveData import saveTokens, saveSinLimpiarTokens
 from tqdm import tqdm
 import emoji
 
@@ -31,8 +31,8 @@ def tokenizarSinLimpiar(rawText):
     nlp = spacy.load("en_core_web_sm")  # Cargar modelo
     for texto in tqdm(rawText, desc="Procesando textos"):
         doc = nlp(texto)
-        tokens_palabras = [token.text for token in doc]
+        tokens_palabras = [token.text for token in doc if len(token.text) > 3 and token.is_alpha]
         textos_token.append(tokens_palabras)
-    saveTokens(textos_token)
+    saveSinLimpiarTokens(textos_token)
 
     return textos_token
