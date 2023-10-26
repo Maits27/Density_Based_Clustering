@@ -3,7 +3,11 @@ import pandas as pd
 from pathlib import Path
 import csv
 
-
+def loadRAWwithClass(path):
+    """
+    Devuelve un dataset con texto y clase
+    """
+    return pd.read_csv(path)
 def loadRAW(path):
     data = pd.read_csv(path)
     return [instancia[1] for instancia in data.values]
@@ -48,6 +52,7 @@ def loadTokens(length):
 def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
     print('Guardando embeddings...')
     length = len(textEmbeddings)
+    print("aaaaaaa",length)
     if type == 'bert': ruta = Path(f'../out/embeddings/bert/embeddings{length}dim{dimension}.npy')
     else: ruta = Path(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
     if not ruta.exists(): # Only if file not exists
@@ -71,4 +76,11 @@ def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, min
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
-formatoParaEmbeddingProjector(250, 10000)
+
+def saveClusters(clusters,name):
+    np.save(f'../out/cluster_labels/clusters_{name}', clusters)
+
+def loadClusters(name):
+    return np.load(f'../out/cluster_labels/clusters_{name}.npy')
+
+#formatoParaEmbeddingProjector(250, 10000)
