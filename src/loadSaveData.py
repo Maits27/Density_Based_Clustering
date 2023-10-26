@@ -71,4 +71,4 @@ def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, min
         file.write('N_Instances\tDim\tEps\tminPts\tmediaPuntosCluster\tminimoInstanciaCluster\tnClusters\tMetric\n')
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
-formatoParaEmbeddingProjector(250, 10000)
+#formatoParaEmbeddingProjector(250, 10000) #TODO esto no sé qué hace aquí
