@@ -11,7 +11,7 @@ from vectorization import bertTransformer
 if __name__ == '__main__':
     # Probar modelo
     vectors = loadEmbeddings(length=10000, dimension=768, type='bert')
-    algoritmo = DensityAlgorithmUrruela(vectors=vectors, epsilon=0.8361, minPt=22, dim=768) # dim=768
+    algoritmo = DensityAlgorithmUrruela(vectors=vectors, epsilon=2.567, minPt=12, dim=768) # dim=768
     #algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.007, minPt=9) # dim=768
     algoritmo.ejecutarAlgoritmo()
 
