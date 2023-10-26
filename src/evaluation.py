@@ -91,8 +91,8 @@ def getClusterSample(clusterList, numClusters, rawData, sample=10):
         elif len(foundInstancesForEachCluster[instance]) != sample:
             foundInstancesForEachCluster[instance].append(rawData[index])
         if _areEnoughSamples(foundInstancesForEachCluster, numClusters,sample):
+            _printSamples(foundInstancesForEachCluster)
             return foundInstancesForEachCluster
-    _printSamples(foundInstancesForEachCluster)
 
 
 def _areEnoughSamples(dict, numClusters,sample):
