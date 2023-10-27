@@ -18,6 +18,33 @@ import matplotlib.colors as mcolors
             else:
                 class_to_cluster[c][1] += 1
     return class_to_cluster'''
+def pairWiseEvaluation(clusters1, clusters2):
+    '''
+    :param clusters1: clusters del primer metodo
+    :param clusters2: clusters del segundo metodo
+    :return: la matriz arrayComparativos (pair-wise comparison), donde:
+        0.Pos: coinciden en ambos metodos
+        1.Pos: coinciden en el primero
+        2.Pos: coinciden en el segundo
+        3.Pos: no coinciden
+    '''
+    arrayComparativo = [0]*4
+    paresComparados = set()
+    for index1, c1 in enumerate(clusters1):
+        for index2, c2 in enumerate(clusters1):
+            if index2 != index1:
+                if (pair := '_'.join(sorted([str(index1), str(index2)]))) not in paresComparados:
+                    paresComparados.add(pair)
+                    if c1 == c2 and clusters2[index1] == clusters2[index2]:
+                        arrayComparativo[0] += 1
+                    elif c1 == c2 and not clusters2[index1] == clusters2[index2]:
+                        arrayComparativo[1] += 1
+                    elif not c1 == c2 and clusters2[index1] == clusters2[index2]:
+                        arrayComparativo[2] += 1
+                    else:
+                        arrayComparativo[3] += 1
+    print(arrayComparativo)
+    return arrayComparativo
 
 def clase_a_num(data):
     clases = data['class'].copy()
