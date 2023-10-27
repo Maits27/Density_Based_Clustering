@@ -1,10 +1,26 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, adjusted_rand_score, jaccard_score, fowlkes_mallows_score, \
+    silhouette_score
 from wordcloud import WordCloud
 from tqdm import tqdm
 
 
+
+def metricasInternas(clusters1, clusters2, textos):
+    ari = adjusted_rand_score(clusters1, clusters2)
+    interseccion = len(set(clusters1) & set(clusters2))
+    union = len(set(clusters1) | set(clusters2))
+    jaccard = interseccion / union
+    fms = fowlkes_mallows_score(clusters1, clusters2)
+    silhouette1 = silhouette_score(textos, clusters1)
+    silhouette2 = silhouette_score(textos, clusters2)
+
+    print(f'La métrica de Rand Index comparando los dos algoritmos es: {ari}\n'
+          f'La métrica de Jaccard Score comparando los dos algoritmos es: {jaccard}\n'
+          f'La métrica de Fowlkes Mallows Score comparando los dos algoritmos es: {fms}\n'
+          f'La métrica de Silhouette para el algoritmo de DBScan de SKLearn es: {silhouette1}\n'
+          f'La métrica de Silhouette para el algoritmo implementado es: {silhouette2}\n')
 def pairWiseEvaluation(clusters1, clusters2):
     '''
     :param clusters1: clusters del primer metodo
