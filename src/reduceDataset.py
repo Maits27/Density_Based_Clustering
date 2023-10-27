@@ -18,6 +18,8 @@ def reduceDataset(path, numTrainInstances, numTestInstances, pathToWrite):
 		trainDataset.to_csv(pathToWrite + f'Suicide_Detection_train{numTrainInstances}(test{numTestInstances}).csv', index=False)
 		testDataset.to_csv(pathToWrite + f'Suicide_Detection_test{numTestInstances}(train{numTrainInstances}).csv', index=False)
 
+		return trainDataset, testDataset
+
 
 if __name__ == '__main__':
 	datsetPath = sys.argv[1]

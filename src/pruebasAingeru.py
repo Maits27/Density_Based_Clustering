@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # Probar modelo
     vectors = loadEmbeddings(length=10000, dimension=768, type='bert')
     #algoritmo = DensityAlgorithmUrruela(vectors=vectors, epsilon=0.6178, minPt=21, dim=768) # dim=768
-    algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.0918, minPt=5) # dim=768
+    algoritmo = DBScanOriginal(vectors=vectors, epsilon=0.007, minPt=9) # dim=768
     algoritmo.ejecutarAlgoritmo()
 
     rawData = loadRAWwithClass('../Datasets/Suicide_Detection10000.csv')
