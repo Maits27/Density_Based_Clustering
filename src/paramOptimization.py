@@ -68,12 +68,12 @@ def barridoDoc2Vec(dimensionList):
 
 
 def objective(trial, loadedEmbedding):
-    epsilon = trial.suggest_float('epsilon', 0.005, 1.0, step=0.0001)
-    minPt = trial.suggest_int('minPt', 5, 16)
+    epsilon = trial.suggest_float('epsilon', 0.0, 0.01, step=0.00001)
+    minPt = trial.suggest_int('minPt', 5, 15)
 
 
     # Utiliza los valores sugeridos por Optuna para la ejecución
-    algoritmo = DensityAlgorithmUrruela(loadedEmbedding, epsilon=epsilon, minPt=minPt)
+    algoritmo = DBScanOriginal(loadedEmbedding, epsilon=epsilon, minPt=minPt)
     algoritmo.ejecutarAlgoritmo()
 
     optunaNCluster = algoritmo.getNumClusters()
