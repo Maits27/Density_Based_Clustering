@@ -2,22 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from wordcloud import WordCloud
-import matplotlib.colors as mcolors
+from tqdm import tqdm
 
-'''def crearMatrizClassToCluster(data, clusters):
-    clusters_validos = set(clusters)
-    clases = data['class'].copy()
-    print(len(clases))
-    class_to_cluster = []
-    for i in range(len(clusters_validos)):
-        class_to_cluster.append([0, 0])
-    for i, c in enumerate(clusters):
-        if c != -1:
-            if np.array(clases)[i].__eq__('suicide'):
-                class_to_cluster[c][0] += 1
-            else:
-                class_to_cluster[c][1] += 1
-    return class_to_cluster'''
+
 def pairWiseEvaluation(clusters1, clusters2):
     '''
     :param clusters1: clusters del primer metodo
@@ -30,7 +17,7 @@ def pairWiseEvaluation(clusters1, clusters2):
     '''
     arrayComparativo = [0]*4
     paresComparados = set()
-    for index1, c1 in enumerate(clusters1):
+    for index1, c1 in tqdm(enumerate(clusters1), desc=f'\tComparando clusters (total de {len(clusters1)})'):
         for index2, c2 in enumerate(clusters1):
             if index2 != index1:
                 if (pair := '_'.join(sorted([str(index1), str(index2)]))) not in paresComparados:
@@ -45,6 +32,7 @@ def pairWiseEvaluation(clusters1, clusters2):
                         arrayComparativo[3] += 1
     print(arrayComparativo)
     return arrayComparativo
+
 
 def clase_a_num(data):
     clases = data['class'].copy()

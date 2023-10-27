@@ -2,7 +2,6 @@ import numpy as np
 from tqdm import tqdm
 
 from sklearn.cluster import DBSCAN
-from sklearn.cluster import KMeans
 
 from sklearn.metrics.pairwise import cosine_similarity
 
