@@ -3,6 +3,7 @@ from tokenization import tokenize
 import vectorization
 import clustering
 import evaluation
+import sys
 
 # Definir parámetros
 nInstances = 10000
@@ -37,3 +38,8 @@ evaluation.getClusterSample(clusterList=algoritmo.clusters,
                             numClusters=algoritmo.getNumClusters(),
                             rawData=rawData,
                             sample=5)
+
+if __name__ == '__main__':
+    nInstances = int(sys.argv[1])
+    path = sys.argv[2]
+
