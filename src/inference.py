@@ -49,10 +49,16 @@ def visualizar_instancias_por_clase():
     plt.show()
 
 
-def buscar_instancias_cluster(train,clusters, clusterNum):
-    for i in range(len(train)):
+def buscar_instancias_cluster(clusters, clusterNum):
+    instancias=[]
+    for i in range(len(clusters)):
         if clusters[i] == clusterNum:
-            print(i)
+            instancias.append(i)
+    return instancias
+
+def imprimir_instancia(path,i):
+    data=loadRAW(path)
+    return data[i]
 
 
 def add_instances_to_test (train,test,instances):
@@ -93,7 +99,8 @@ def reducir_dim(train, test,dim):
 
 
 def grafico(train_reducido, clusters, test_reducido, clusters_test):
-    colores = ['g', 'r', 'purple', 'y', 'k', 'orange', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    colores = ['#006400', '#f70707', '#fa07b5', '#FFFF00', '#AA00FF', '#f77502', '#663409', '#8c0a0a', '#074a70',
+               '#486e47', '#1b1f1b', '#510782']
     plt.figure(figsize=(16, 14))
 
     # TRAIN
@@ -101,7 +108,7 @@ def grafico(train_reducido, clusters, test_reducido, clusters_test):
 
     # ruido
     noise_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == -1])
-    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='blue', label='Noise')
+    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='#00008B', label='Noise')
 
     # instancias train cluster
     for label in unique_labels:
@@ -110,12 +117,13 @@ def grafico(train_reducido, clusters, test_reducido, clusters_test):
                     label=f'Cluster {label}')
 
     # TEST
-    colores = ['lime', 'pink', 'orange', 'purple', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    colores = ['#90EE90', '#f58484', '#ff91e0', '#fafa64', '#ce7df5', '#f0c39c', '#9c693d', '#9e5959', '#5f93b0',
+               '#82c280', '#60666b', '#8b58ad']
     unique_labels = set(clusters_test) - {-1}
 
     # ruido
     noise_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == -1])
-    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='c', label='Noise Test')
+    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='#87CEEB', label='Noise Test')
 
     # instancias test cluster
     for label in unique_labels:
@@ -125,11 +133,12 @@ def grafico(train_reducido, clusters, test_reducido, clusters_test):
     plt.title('Gráfico de Densidad basado en DBSCAN')
     plt.xlabel('Dimensión X')
     plt.ylabel('Dimensión Y')
-    plt.legend()
+    plt.legend(ncol=2)
     plt.show()
 
 def grafico_3d(train_reducido, clusters, test_reducido, clusters_test):
-    colores = ['g', 'r', 'purple', 'y', 'k', 'orange', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    colores = ['#006400', '#f70707', '#fa07b5', '#FFFF00', '#AA00FF', '#f77502', '#663409', '#8c0a0a', '#074a70',
+               '#486e47', '#1b1f1b', '#510782']
     fig = plt.figure(figsize=(14, 12))
     ax = fig.add_subplot(111, projection='3d')
 
@@ -143,11 +152,12 @@ def grafico_3d(train_reducido, clusters, test_reducido, clusters_test):
     # instancias train cluster
     for label in unique_labels:
         cluster_points = np.array([train_reducido[i] for i in range(len(train_reducido)) if clusters[i] == label])
-        ax.scatter(cluster_points[:, 0], cluster_points[:, 1],cluster_points[:, 2], c=colores[label % len(colores)],
+        ax.scatter(cluster_points[:, 0], cluster_points[:, 1],cluster_points[:, 2], c=colores[label],
                     label=f'Cluster {label}')
 
     # TEST
-    colores = ['lime', 'pink', 'orange', 'purple', 'pink', 'brown', 'teal', 'lime', 'navy', 'gray']
+    colores = ['#90EE90', '#f58484', '#ff91e0', '#fafa64', '#ce7df5', '#f0c39c', '#9c693d', '#9e5959', '#5f93b0',
+               '#82c280', '#60666b', '#8b58ad']
     unique_labels = set(clusters_test) - {-1}
 
     # ruido
@@ -157,13 +167,14 @@ def grafico_3d(train_reducido, clusters, test_reducido, clusters_test):
     # instancias test cluster
     for label in unique_labels:
         cluster_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == label])
-        ax.scatter(cluster_points[:, 0], cluster_points[:, 1],cluster_points[:, 2], c=colores[label % len(colores)], label=f'Cluster {label} test')
+        ax.scatter(cluster_points[:, 0], cluster_points[:, 1],cluster_points[:, 2], c=colores[label], label=f'Cluster {label} test')
 
     ax.set_xlabel('Dimensión X')
     ax.set_ylabel('Dimensión Y')
     ax.set_zlabel('Dimensión Z')
     plt.title('Gráfico de Densidad basado en DBSCAN (3D)')
-    plt.legend()
+    plt.legend(ncol=2)
     plt.show()
+
 
 
