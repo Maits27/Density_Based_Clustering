@@ -15,7 +15,7 @@ def distance(vector1, vector2):
 
 class DensityAlgorithmUrruela:
 
-    def __init__(self, vectors, epsilon, minPt, dim, dist={}):
+    def __init__(self, vectors, epsilon, minPt, dist={}):
         self.vectors = vectors  # DOCUMENTOS VECTORIZADOS
         self.epsilon = epsilon  # RADIO PARA CONSIDERAR VECINOS
         self.minPt = minPt  # MINIMO DE VECINOS PARA CONSIDERAR NUCLEO
@@ -26,7 +26,7 @@ class DensityAlgorithmUrruela:
         self.distancias = dist # DISTANCIAS ENTRE VECTORES {frozenSet: float}
         self.clustersValidos = []  # CONJUNTO DE CLUSTERS SELECCIONADOS
         self.alcanzables = []
-        self.dimensiones = dim
+        self.dimensiones = len(vectors[0])
 
     def ejecutarAlgoritmo(self):
 

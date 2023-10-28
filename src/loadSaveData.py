@@ -98,10 +98,15 @@ def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
         np.save(ruta, textEmbeddings)
 
 
-def loadEmbeddings(length, dimension, type='no-bert'):
+def loadEmbeddings(length, dimension=768, type='no-bert'):
     print('Cargando embeddings...')
-    if type == 'bert': return np.load(f'../out/embeddings/bert/embeddings{length}dim{dimension}.npy')
-    else: return np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+    if type == 'bert': 
+        loadedData = np.load(f'../out/embeddings/bert/embeddings{length}dim{768}.npy')
+    else: 
+        loadedData = np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+    print('Embeddings cargados')
+    return loadedData
+
 
 
 def saveInCSV(nInstances, dimension, espilon, minPts, nClusters, silhouette):
@@ -116,7 +121,7 @@ def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, min
         file.write(f'{nInstances}\t{dimension}\t{espilon}\t{minPts}\t{media_puntos_cluster}\t{minimo_instancias}\t{nClusters}\t{silhouette}')
 
 
-def saveClusters(clusters,name):
+def saveClusters(clusters, name):
     np.save(f'../out/cluster_labels/clusters_{name}', clusters)
 
 def loadClusters(name):
