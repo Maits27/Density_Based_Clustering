@@ -68,7 +68,8 @@ def add_instances_to_test (train,test,instances):
                 test= np.vstack((test, train[i]))
     return test
 
-def asignar_cluster_test(train,test,clusters,):
+
+def asignar_cluster_test(train,test,clusters):
     clusters_test=[]
     for test_instance in test:
             distancias=1- cosine_similarity(test_instance.reshape(1,-1),train)[0]
@@ -83,6 +84,12 @@ def asignar_cluster_test(train,test,clusters,):
             """
     return clusters_test
 
+def distancias_instancia_i(train,test_instance):
+    distancias = 1 - cosine_similarity(test_instance.reshape(1, -1), train)[0]
+    instanciaCercana = np.argmin(distancias)
+
+    print("DISTANCIAS", distancias)
+    print("INSTANCIA MAS CERCANA:", instanciaCercana,", DISTANCIA:",distancias[instanciaCercana])
 
 def reducir_dim(train, test,dim):
     print('Dim train originally: ', np.array(train).shape)
