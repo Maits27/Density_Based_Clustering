@@ -2,8 +2,7 @@
   - [1.1. Dataset](#11-dataset)
   - [1.2. Ejecución](#12-ejecución)
     - [1.2.1. Requisitos](#121-requisitos)
-    - [1.2.2. Ejecución desde archivo .py](#122-ejecución-desde-archivo-py)
-    - [1.2.3. Ejecución de manera visual desde Jupyer Notebook](#123-ejecución-de-manera-visual-desde-jupyer-notebook)
+    - [Ejecución local](#ejecución-local)
     - [1.2.4. Ejecución con Docker](#124-ejecución-con-docker)
 - [2. Estructura del proyecto - Código fuente](#2-estructura-del-proyecto---código-fuente)
   - [2.1. Proceso prinicipal](#21-proceso-prinicipal)
@@ -46,22 +45,22 @@ Requisitos:
 * Tener `python3` instalado
 * Tener `pip` instalado
 
+### Ejecución local
+
 1. Clonar el repositorio:
 
 ```bash
-git clone https://github.com/Maits27/PruebitasMineria.git
+git clone https://github.com/Maits27/Density_Based_Clustering.git
 ```
 
 2. Instalar las dependencias
 
 ```bash
-cd ./PruebitasMineria
+cd ./Density_Based_Clustering
 pip install -r requirements.txt
 ```
 
 3. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `./Datasets` del proyecto.
-
-### 1.2.2. Ejecución desde archivo .py
 
 4. Ejecutar el archivo `./src/main.py`:
 
@@ -88,15 +87,24 @@ python main.py 10000 768 bert ourDensityAlgorithm 2.567 12
 python main.py 10000 768 bert dbscan 0.0071 5
 ```
 
-### 1.2.3. Ejecución de manera visual desde Jupyer Notebook
-
-También se incluye `main.ipynb` para poder ejecutar el proceso paso a paso.
+Alternativamente, se incluye `main.ipynb` para poder ejecutar el proceso paso a paso.
 
 ### 1.2.4. Ejecución con Docker
 
 Se pide como requisito tener Docker instalado.
 
+1. Clonar el repositorio:
 
+```bash
+git clone https://github.com/Maits27/Density_Based_Clustering.git
+```
+
+2. Crear la imagen:
+
+```bash
+cd ./Density_Based_Clustering
+
+```
 
 # 2. Estructura del proyecto - Código fuente
 
