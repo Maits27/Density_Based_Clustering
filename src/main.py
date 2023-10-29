@@ -1,5 +1,5 @@
-from loadSaveData import loadRAW, saveClusters, loadEmbeddings, loadSinLimpiarTokens
-from tokenization import tokenize
+from loadSaveData import loadRAW, loadSinLimpiarTokens, loadRAWwithClass
+from tokenization import tokenize, tokenizarSinLimpiar
 import vectorization
 import clustering
 import evaluation
@@ -9,12 +9,13 @@ import sys
 def preProcess(nInstances, vectorsDimension, vectorizationMode):
     path = f'../Datasets/Suicide_Detection{nInstances}.csv' # Previosuly reduced with reduceDataset.py
     rawData = loadRAW(path)
+    rawDataWithClass = loadRAWwithClass(path)
     if vectorizationMode != vectorization.bertTransformer:
         textosToken = tokenize(rawData)
         textEmbeddings = vectorizationMode(textosToken=textosToken, dimensiones=vectorsDimension)
     else: 
         textEmbeddings = vectorizationMode(rawData)
-    return rawData, textEmbeddings
+    return rawData, rawDataWithClass, textEmbeddings
 
 
 def executeClustering(clusteringAlgorithm, epsilon, minPts):
@@ -26,10 +27,10 @@ def executeClustering(clusteringAlgorithm, epsilon, minPts):
     return clusters, numClusters
 
 
-def evaluate(nInstances, rawData, clusters, numClusters):
-    tokensSinLimpiar = loadSinLimpiarTokens(length=nInstances)
+def evaluate(rawData, rawDataWithClass, clusters, numClusters):
+    tokensSinLimpiar = tokenizarSinLimpiar(rawDataWithClass) 
 
-    evaluation.classToCluster(rawData, clusters)
+    evaluation.classToCluster(tokensSinLimpiar, clusters) # TODO da error, no hay clase
     evaluation.wordCloud(clusters, tokensSinLimpiar)
     evaluation.getClusterSample(clusterList=clusters, 
                                 numClusters=numClusters,
@@ -50,9 +51,9 @@ if __name__ == '__main__':
         clusteringAlgorithm = clustering.DensityAlgorithmUrruela
     elif sys.argv[4] == 'dbscan':
         clusteringAlgorithm = clustering.DBScanOriginal
-    epsilon = int(sys.argv[5])
+    epsilon = float(sys.argv[5])
     minPts = int(sys.argv[6])
 
-    rawData, textEmbeddings = preProcess(nInstances, vectorsDimension, vectorizationMode)
+    rawData, rawDataWithClass, textEmbeddings = preProcess(nInstances, vectorsDimension, vectorizationMode)
     clusters, numClusters = executeClustering(clusteringAlgorithm, epsilon, minPts)
-    evaluate(nInstances, rawData, clusters, numClusters)
+    evaluate(rawData, rawDataWithClass, clusters, numClusters)

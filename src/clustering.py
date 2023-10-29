@@ -262,12 +262,13 @@ class DBScanOriginal:
         self.clusters = []
         self.numClusters = None
 
+
     def ejecutarAlgoritmo(self):
         # Aplicar DBSCAN a los vectores de documentos
         dbscan = DBSCAN(eps=self.epsilon, min_samples=self.minPt, metric='cosine')  # Ajusta los parámetros según tu caso
         self.clusters = dbscan.fit_predict(self.vectors)
         saveClusters(self.clusters, 'dbscan')
-        
+
 
     def imprimir(self):
         total = 0
