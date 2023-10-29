@@ -10,12 +10,23 @@ import numpy as np
 
 
 def tfidf(textosToken, dimensiones):
+    """
+    Genera vectorización de los textos usando TF-IDF
+    Devuelve las distancias vectorizadas
+    """
+
     vectorizer = TfidfVectorizer()
     documentVectors = vectorizer.fit_transform(textosToken)
     saveEmbeddings(documentVectors, dimensiones)
 
+    return documentVectors
+
 
 def doc2vec(textosToken, dimensiones):
+    """
+    Genera vectorización de los textos usando Doc2vec
+    Devuelve las distancias vectorizadas
+    """
 
     documents = [TaggedDocument(doc, [i]) for i, doc in enumerate(textosToken)]
     model = Doc2Vec(documents, vector_size=dimensiones, window=2, dm=1, epochs=100, workers=4)
@@ -28,6 +39,8 @@ def doc2vec(textosToken, dimensiones):
     documentVectors = [model.infer_vector(doc) for doc in textosToken]
 
     saveEmbeddings(documentVectors, dimensiones)
+
+    return documentVectors
 
 
 def bertTransformer(rawData):

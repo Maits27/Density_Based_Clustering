@@ -1,5 +1,6 @@
 Datasets/*
 !Datasets/corto*
+!Datasets/Suicide_Detection10000.csv
 
 # Ignore pycache
 __pycache__

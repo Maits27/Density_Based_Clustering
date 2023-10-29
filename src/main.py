@@ -1,4 +1,4 @@
-from loadSaveData import loadRAW, loadSinLimpiarTokens, loadRAWwithClass
+from loadSaveData import loadRAW, loadRAWwithClass
 from tokenization import tokenize, tokenizarSinLimpiar
 import vectorization
 import clustering
@@ -30,7 +30,7 @@ def executeClustering(clusteringAlgorithm, epsilon, minPts):
 def evaluate(rawData, rawDataWithClass, clusters, numClusters):
     tokensSinLimpiar = tokenizarSinLimpiar(rawDataWithClass) 
 
-    evaluation.classToCluster(rawDataWithClass, clusters) # TODO da error, no hay clase
+    evaluation.classToCluster(rawDataWithClass, clusters)
     evaluation.wordCloud(clusters, tokensSinLimpiar) 
     evaluation.getClusterSample(clusterList=clusters, 
                                 numClusters=numClusters,
@@ -42,9 +42,7 @@ if __name__ == '__main__':
     nInstances = int(sys.argv[1])
     vectorsDimension = int(sys.argv[2])
     if sys.argv[3] == 'doc2vec':
-        vectorizationMode = vectorization.bertTransformer
-    elif sys.argv[3] == 'tfidf':
-        vectorizationMode = vectorization.tfidf
+        vectorizationMode = vectorization.doc2vec
     elif sys.argv[3] == 'bert':
         vectorizationMode = vectorization.bertTransformer
     if sys.argv[4] == 'ourDensityAlgorithm':

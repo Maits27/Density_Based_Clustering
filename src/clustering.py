@@ -27,6 +27,7 @@ class DensityAlgorithmUrruela:
         self.clustersValidos = []  # CONJUNTO DE CLUSTERS SELECCIONADOS
         self.alcanzables = []
         self.dimensiones = len(vectors[0])
+        self.typeDistance = 0 # 0 for Euclidean distance, 1 for cosine distance
 
     def ejecutarAlgoritmo(self):
 
@@ -44,16 +45,18 @@ class DensityAlgorithmUrruela:
 
     def calcular_distancias(self):
         if len(self.distancias) == 0:
-            if (d:=loadDistances(nInstances=len(self.vectors), dimensions=self.dimensiones)) == False:
+            if (d:=loadDistances(nInstances=len(self.vectors), dimensions=self.dimensiones, typeDistance=self.typeDistance)) == False:
                 for i, doc in tqdm(enumerate(self.vectors), desc=f'\tCALCULANDO DISTANCIAS, total de {len(self.vectors)}'):
                     for j, doc2 in enumerate(self.vectors):
                         if j != i:
                             if (pair := '_'.join(sorted([str(i), str(j)]))) not in self.distancias:
-                                #dist = np.linalg.norm(doc - doc2) # 1-cosine_similarity([doc], [doc2])
-                                dist = 1 - spatial.distance.cosine(doc, doc2)
+                                if self.typeDistance == 0:
+                                    dist = np.linalg.norm(doc - doc2)
+                                else:
+                                    dist = 1 - spatial.distance.cosine(doc, doc2)
                                 self.distancias[pair] = float(dist)
                 print(f'\tTOTAL DE {len(self.distancias)} DISTANCIAS CALCULADAS')
-                saveDistances(self.distancias, nInstances=len(self.vectors), dimensiones=self.dimensiones)
+                saveDistances(self.distancias, nInstances=len(self.vectors), dimensiones=self.dimensiones, typeDistance=self.typeDistance)
             else:
                 print('\tDistancias encontradas y cargadas desde archivo')
                 self.distancias = d

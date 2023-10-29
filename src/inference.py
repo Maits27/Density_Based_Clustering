@@ -11,6 +11,8 @@ from loadSaveData import loadEmbeddings
 from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+
+
 def create_test_embeddings():
     #TRANSFORMERS TEST
     path = '../Datasets/Suicide_Detection_test2000(train10000).csv'
@@ -18,7 +20,6 @@ def create_test_embeddings():
     rawData = loadRAW(path)
     test = vectorizationMode(rawData)
     return test
-
 
 
 def make_clustering(data):
@@ -56,12 +57,13 @@ def buscar_instancias_cluster(clusters, clusterNum):
             instancias.append(i)
     return instancias
 
+
 def imprimir_instancia(path,i):
     data=loadRAW(path)
     return data[i]
 
 
-def add_instances_to_test (train,test,instances):
+def add_instances_to_test(train,test,instances):
     for i in range(len(train)):
         for instance in instances:
             if i==instance:
@@ -84,6 +86,7 @@ def asignar_cluster_test(train,test,clusters):
             """
     return clusters_test
 
+
 def distancias_instancia_i(train,test, pathTrain,pathTest,i):
     print("TEXTO INSTANCIA TEST:", imprimir_instancia(pathTest, i))
     test_instance=test[i]
@@ -96,8 +99,6 @@ def distancias_instancia_i(train,test, pathTrain,pathTest,i):
 
 
     print("TEXTO INSTANCIA TRAIN:",imprimir_instancia(pathTrain,instanciaCercana))
-
-
 
 
 def reducir_dim(train, test,dim):
@@ -151,6 +152,7 @@ def grafico(train_reducido, clusters, test_reducido, clusters_test):
     plt.ylabel('Dimensión Y')
     plt.legend(ncol=2)
     plt.show()
+
 
 def grafico_3d(train_reducido, clusters, test_reducido, clusters_test):
     colores = ['#006400', '#f70707', '#fa07b5', '#FFFF00', '#AA00FF', '#f77502', '#663409', '#8c0a0a', '#074a70',

@@ -4,6 +4,7 @@
     - [1.2.1. Requisitos](#121-requisitos)
     - [1.2.2. Ejecución desde archivo .py](#122-ejecución-desde-archivo-py)
     - [1.2.3. Ejecución de manera visual desde Jupyer Notebook](#123-ejecución-de-manera-visual-desde-jupyer-notebook)
+    - [1.2.4. Ejecución con Docker](#124-ejecución-con-docker)
 - [2. Estructura del proyecto - Código fuente](#2-estructura-del-proyecto---código-fuente)
   - [2.1. Proceso prinicipal](#21-proceso-prinicipal)
     - [2.1.1. reduceDataset.py](#211-reducedatasetpy)
@@ -12,11 +13,11 @@
     - [2.1.4. clustering.py](#214-clusteringpy)
     - [2.1.5. evaluation.py](#215-evaluationpy)
   - [2.2. Proceso de inferencia](#22-proceso-de-inferencia)
-  - [2.3. inference.py](#23-inferencepy)
-  - [2.4. Módulos de utilidades](#24-módulos-de-utilidades)
-    - [2.4.1. paramOptimization.py](#241-paramoptimizationpy)
-    - [2.4.2. dataVisualization.py](#242-datavisualizationpy)
-    - [2.4.3. loadSaveData.py](#243-loadsavedatapy)
+    - [2.2.1. inference.py](#221-inferencepy)
+  - [2.3. Módulos de utilidades](#23-módulos-de-utilidades)
+    - [2.3.1. paramOptimization.py](#231-paramoptimizationpy)
+    - [2.3.2. dataVisualization.py](#232-datavisualizationpy)
+    - [2.3.3. loadSaveData.py](#233-loadsavedatapy)
 
 
 # 1. Introducción
@@ -72,14 +73,30 @@ python main.py <numInstances> <vectorsDim> <vectorType> <algorithm> <epsilon> <m
 Donde:
 * `numInstances`: número de instancias a utilizar de entrenamiento. Tiene que ser menor al número de instancias totales del dataset original.
 * `vectorsDim`: número de dimensiones a utilizar. Indicar cualquier número si se usa `bert` en `vectorType`
-* `vectorType`: `bert` para usar Transformers, `doc2vec` para usar Doc2Vec o `tfidf` para usar `TF-IDF`
+* `vectorType`: `bert` para usar Transformers o `doc2vec` para usar Doc2Vec
 * `algorithm`: `ourDensityAlgorithm` para usar nuestro algoritmo y `dbscan` para usar el de la librería `sklearn`.
 * `epsilon`: valor de `epsilon` para el algortimo de Clustering.
 * `minPts`: valor de `minPts` para el algoritmo de Clustering.
 
+Recomendamos utilizar los siguientes valores que dan buenos resultados para hacer pruebas:
+
+```bash
+python main.py 10000 768 bert ourDensityAlgorithm 2.567 12
+```
+
+```bash
+python main.py 10000 768 bert dbscan 0.0071 5
+```
+
 ### 1.2.3. Ejecución de manera visual desde Jupyer Notebook
 
 También se incluye `main.ipynb` para poder ejecutar el proceso paso a paso.
+
+### 1.2.4. Ejecución con Docker
+
+Se pide como requisito tener Docker instalado.
+
+
 
 # 2. Estructura del proyecto - Código fuente
 
@@ -105,11 +122,46 @@ Donde:
 
 ### 2.1.2. tokenization.py
 
+Este módulo ofrece 2 tipos de tokenizaciones:
+
+- Tokenización con limpieza:
+  - Quita los emojis
+  - Quita las palabras 'filler' y 'filer'
+  - Quita las palabras de más de 3 tokens
+  - Quita los stopwords
+  - Quita todos los carácteres especiales
+  - Lematiza los tokens
+  - Pasa a minúscula todos los tokens 
+- Tokenización sin limpieza
+
 ### 2.1.3. vectorization.py
+
+Este módulo ofrece 3 tipos de vectorizaciones:
+
+- TF-IDF
+- Doc2Vec
+- Vectorización mediante Transformers
 
 ### 2.1.4. clustering.py
 
+Este módulo ofrece 2 tipos de algoritmo:
+
+- Nuestro algoritmo de densidad
+- Algoritmo de DBSCAN implementado por SKLEARN
+
 ### 2.1.5. evaluation.py
+
+Este módulo ofrece varios tipos de evaluación:
+
+- Métricas internas:
+  - Rand Index
+  - Jaccard Score
+  - Fowlkes Mallows Score
+  - Silhouette
+- Pair-Wise-Evaluation entre dos clusterings
+- Class-to-cluster evaluation
+- Generación de WordClouds
+- Conseguir muestras de los clusters
 
 ## 2.2. Proceso de inferencia
 
@@ -117,15 +169,27 @@ El de inferencia utiliza los módulos del siguiente diagrama:
 
 <img src="img/diagrams/inferenceProcess.jpg" alt="drawing" width="500"/>
 
-## 2.3. inference.py
+### 2.2.1. inference.py
 
-## 2.4. Módulos de utilidades
+Es el módulo con las funciones y utilidades para realizar la inferencia, es decir, clasificar instancias nuevas a clusters previamente calculados.
 
-### 2.4.1. paramOptimization.py
+## 2.3. Módulos de utilidades
 
-### 2.4.2. dataVisualization.py
+Son módulos auxiliares utilizados a la hora de realizar la inferencia.
 
-### 2.4.3. loadSaveData.py
+### 2.3.1. paramOptimization.py
 
+Es el módulo con las herramientas para optimizar los parámetros `epsilon` y `minPts`
 
+### 2.3.2. dataVisualization.py
 
+Contiene las utilidades para representación visual de los datos:
+
+- Distribución de la clase
+- Distribución de pares de instancias
+- Visualización PCA
+- Visualización t-SNE
+
+### 2.3.3. loadSaveData.py
+
+Contiene las herramientas para guardar y cargar archivos con tokens, embeddings, distancias, clusters y resultados de ejecuciones de optimización.

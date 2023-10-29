@@ -94,7 +94,6 @@ def loadSinLimpiarTokens(length):
 def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
     print('Guardando embeddings...')
     length = len(textEmbeddings)
-    print("aaaaaaa",length)
     if type == 'bert': ruta = Path(f'../out/embeddings/bert/embeddings{length}dim{dimension}.npy')
     else: ruta = Path(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
     if not ruta.exists(): # Only if file not exists
@@ -136,17 +135,24 @@ def loadClusters(name):
     return np.load(f'../out/cluster_labels/clusters_{name}.npy')
 
 
-def saveDistances(distancesDict, nInstances, dimensiones):
-    ruta = Path(f'../out/distances/distances{nInstances}_dim{dimensiones}.json')
-    if not ruta.exists():
-        with open(f'../out/distances/distances{nInstances}_dim{dimensiones}.json', "w", encoding="utf-8") as archivo:
+def saveDistances(distancesDict, nInstances, dimensiones, typeDistance):
+    print('Guardando distancias en JSON...')
+    if typeDistance == 0:
+        path = Path(f'../out/distances/distances{nInstances}_dim{dimensiones}euclidean.json')
+    elif typeDistance == 1:
+        path = Path(f'../out/distances/distances{nInstances}_dim{dimensiones}cosine.json')
+    if not path.exists():
+        with open(path, "w", encoding="utf-8") as archivo:
             json.dump(distancesDict, archivo, ensure_ascii=False)
         print('Distancias guardadas en JSON')
 
 
-def loadDistances(nInstances, dimensions):
+def loadDistances(nInstances, dimensions, typeDistance):
     print('Cargando distancias')
-    path = Path(f'../out/distances/distances{nInstances}_dim{dimensions}.json')
+    if typeDistance == 0:
+        path = Path(f'../out/distances/distances{nInstances}_dim{dimensions}euclidean.json')
+    elif typeDistance == 1:
+        path = Path(f'../out/distances/distances{nInstances}_dim{dimensions}cosine.json')
     if path.exists():
         with open(path, "r") as f:
             return json.load(f)
