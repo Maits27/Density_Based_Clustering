@@ -31,30 +31,33 @@ def doc2vec(textosToken, dimensiones):
 
 
 def bertTransformer(rawData):
-    model = RobertaModel.from_pretrained('cardiffnlp/twitter-xlm-roberta-base').eval() # BERT base, which is a BERT model consists of 12 layers of Transformer encoder, 12 attention heads, 768 hidden size, and 110M parameters.
-    tokenizer = AutoTokenizer.from_pretrained('cardiffnlp/twitter-xlm-roberta-base', use_fast=True)
+    loadedEmbeddings = loadEmbeddings(len(rawData), 768, type='bert')
 
-    embeddingList = []
-    for text in tqdm(rawData, desc='Generando embeddings'):
+    if isinstance(loadedEmbeddings, bool):
 
-        tokens = tokenizer(text, return_tensors='pt', max_length=512, truncation=True, add_special_tokens=True) 
-        # Returns a tensor, https://huggingface.co/docs/transformers/v4.31.0/model_doc/bert#transformers.BertTokenizer
-        # Truncates the text if the text has more than 512 tokens
-        #print('Number of tokens:', tokens['input_ids'].shape[1])
+        model = RobertaModel.from_pretrained('cardiffnlp/twitter-xlm-roberta-base').eval() # BERT base, which is a BERT model consists of 12 layers of Transformer encoder, 12 attention heads, 768 hidden size, and 110M parameters.
+        tokenizer = AutoTokenizer.from_pretrained('cardiffnlp/twitter-xlm-roberta-base', use_fast=True)
 
-        with torch.no_grad():
-            output = model(**tokens)[0]
+        embeddingList = []
+        for text in tqdm(rawData, desc='Generando embeddings'):
 
-        embedding = output[0][0].numpy()
-        embeddingList.append(embedding)
+            tokens = tokenizer(text, return_tensors='pt', max_length=512, truncation=True, add_special_tokens=True) 
+            # Returns a tensor, https://huggingface.co/docs/transformers/v4.31.0/model_doc/bert#transformers.BertTokenizer
+            # Truncates the text if the text has more than 512 tokens
 
-    print('Each embedding has:', len(embeddingList[0]), 'dimensions')
-    print('Embedding list length (before save):', len(embeddingList))
-    npEmbeddingList = np.array(embeddingList)
-    saveEmbeddings(npEmbeddingList, len(embeddingList[0]), type='bert')
+            with torch.no_grad():
+                output = model(**tokens)[0]
 
-    # Check
-    loadedEmbeddings = loadEmbeddings(len(embeddingList), len(embeddingList[0]), type='bert')
-    print('Embedding list length (after save)', len(loadedEmbeddings))
+            embedding = output[0][0].numpy()
+            embeddingList.append(embedding)
+
+        print('Each embedding has:', len(embeddingList[0]), 'dimensions')
+        print('Embedding list length (before save):', len(embeddingList))
+        npEmbeddingList = np.array(embeddingList)
+        saveEmbeddings(npEmbeddingList, len(embeddingList[0]), type='bert')
+
+        # Check
+        loadedEmbeddings = loadEmbeddings(len(embeddingList), len(embeddingList[0]), type='bert')
+        print('Embedding list length (after save)', len(loadedEmbeddings))
     
     return loadedEmbeddings

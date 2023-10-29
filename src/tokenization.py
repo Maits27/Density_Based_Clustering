@@ -1,5 +1,5 @@
 import spacy
-from loadSaveData import saveTokens, saveSinLimpiarTokens
+from loadSaveData import saveTokens, saveSinLimpiarTokens, loadSinLimpiarTokens
 from tqdm import tqdm
 import emoji
 
@@ -24,15 +24,19 @@ def tokenize(textos):
 
 def tokenizarSinLimpiar(rawText):
     """
-    Este 
+    Prueba a cargar los tokens. Si no existen, los genera.
     """
-    textos_token = []
+    textos_token = loadSinLimpiarTokens(length=len(rawText)) 
 
-    nlp = spacy.load("en_core_web_sm")  # Cargar modelo
-    for texto in tqdm(rawText, desc="Procesando textos"):
-        doc = nlp(texto)
-        tokens_palabras = [token.text for token in doc if len(token.text) > 3 and token.is_alpha]
-        textos_token.append(tokens_palabras)
-    saveSinLimpiarTokens(textos_token)
+    if isinstance(textos_token, bool):
+
+        textos_token = []
+
+        nlp = spacy.load("en_core_web_sm")  # Cargar modelo
+        for texto in tqdm(rawText, desc="Procesando textos"):
+            doc = nlp(texto)
+            tokens_palabras = [token.text for token in doc if len(token.text) > 3 and token.is_alpha]
+            textos_token.append(tokens_palabras)
+        saveSinLimpiarTokens(textos_token)
 
     return textos_token

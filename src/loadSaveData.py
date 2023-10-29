@@ -11,11 +11,7 @@ def loadRAWwithClass(path):
     """
     return pd.read_csv(path)
 
-def loadRAWwithClass(path):
-    """
-    Devuelve un dataset con texto y clase
-    """
-    return pd.read_csv(path)
+
 def loadRAW(path):
     """
     Devuelve un dataset con solo los textos
@@ -45,19 +41,22 @@ def saveTokens(textosTokenizados):
 
 
 def loadTokens(length):
-    textosTokenizados = []
+    path = Path(f'../out/tokens/tokens{length}.tok')
+    if path.exists():
+        textosTokenizados = []
 
-    with open(f'../out/tokens/tokens{length}.tok', 'r') as file:
-        textoActual = []
-        for line in file:
-            if line == '####\n':
-                textoActualAux = textoActual.copy()
-                textosTokenizados.append(textoActualAux)
-                textoActual.clear()
-            else:
-                textoActual.append(line.replace('\n',''))
-
-    return textosTokenizados
+        with open(path, 'r') as file:
+            textoActual = []
+            for line in file:
+                if line == '####\n':
+                    textoActualAux = textoActual.copy()
+                    textosTokenizados.append(textoActualAux)
+                    textoActual.clear()
+                else:
+                    textoActual.append(line.replace('\n',''))
+        return textosTokenizados
+    else:
+        return False
 
 
 def saveSinLimpiarTokens(textosTokenizados):
@@ -73,19 +72,23 @@ def saveSinLimpiarTokens(textosTokenizados):
 
 def loadSinLimpiarTokens(length):
     print('Cargando sin limpiar tokens')
-    textosTokenizados = []
+    path = Path(f'../out/tokens/tokens_sinlimpiar{length}.tok')
+    if path.exists():
 
-    with open(f'../out/tokens/tokens_sinlimpiar{length}.tok', 'r', encoding='utf-8') as file:
-        textoActual = []
-        for line in file:
-            if line == '####\n':
-                textoActualAux = textoActual.copy()
-                textosTokenizados.append(textoActualAux)
-                textoActual.clear()
-            else:
-                textoActual.append(line.replace('\n',''))
+        textosTokenizados = []
 
-    return textosTokenizados
+        with open(f'../out/tokens/tokens_sinlimpiar{length}.tok', 'r', encoding='utf-8') as file:
+            textoActual = []
+            for line in file:
+                if line == '####\n':
+                    textoActualAux = textoActual.copy()
+                    textosTokenizados.append(textoActualAux)
+                    textoActual.clear()
+                else:
+                    textoActual.append(line.replace('\n',''))
+        return textosTokenizados
+    else:
+        return False
 
 
 def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
@@ -100,10 +103,14 @@ def saveEmbeddings(textEmbeddings, dimension, type='no-bert'):
 
 def loadEmbeddings(length, dimension=768, type='no-bert'):
     print('Cargando embeddings...')
-    if type == 'bert': 
-        loadedData = np.load(f'../out/embeddings/bert/embeddings{length}dim{768}.npy')
+    if type == 'bert':
+        path = Path(f'../out/embeddings/bert/embeddings{length}dim{768}.npy')
+        if path.exists(): loadedData = np.load(path)
+        else: return False
     else: 
-        loadedData = np.load(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+        path = Path(f'../out/embeddings/embeddings{length}dim{dimension}.npy')
+        if path.exists(): loadedData = np.load(path)
+        else: return False
     print('Embeddings cargados')
     return loadedData
 
@@ -146,5 +153,3 @@ def loadDistances(nInstances, dimensions):
     else:
         return False
     
-
-#formatoParaEmbeddingProjector(250, 10000) #TODO esto no sé qué hace aquí

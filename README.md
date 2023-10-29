@@ -1,6 +1,9 @@
 - [1. Introducción](#1-introducción)
   - [1.1. Dataset](#11-dataset)
   - [1.2. Ejecución](#12-ejecución)
+    - [1.2.1. Requisitos](#121-requisitos)
+    - [1.2.2. Ejecución desde archivo .py](#122-ejecución-desde-archivo-py)
+    - [1.2.3. Ejecución de manera visual desde Jupyer Notebook](#123-ejecución-de-manera-visual-desde-jupyer-notebook)
 - [2. Estructura del proyecto - Código fuente](#2-estructura-del-proyecto---código-fuente)
   - [2.1. Proceso prinicipal](#21-proceso-prinicipal)
     - [2.1.1. reduceDataset.py](#211-reducedatasetpy)
@@ -36,6 +39,8 @@ La elección del tamaño del dataset se puede hacer teniendo en cuenta los sigui
 
 ## 1.2. Ejecución
 
+### 1.2.1. Requisitos
+
 Requisitos:
 * Tener `python3` instalado
 * Tener `pip` instalado
@@ -55,6 +60,8 @@ pip install -r requirements.txt
 
 3. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `./Datasets` del proyecto.
 
+### 1.2.2. Ejecución desde archivo .py
+
 4. Ejecutar el archivo `./src/main.py`:
 
 ```bash
@@ -69,6 +76,10 @@ Donde:
 * `algorithm`: `ourDensityAlgorithm` para usar nuestro algoritmo y `dbscan` para usar el de la librería `sklearn`.
 * `epsilon`: valor de `epsilon` para el algortimo de Clustering.
 * `minPts`: valor de `minPts` para el algoritmo de Clustering.
+
+### 1.2.3. Ejecución de manera visual desde Jupyer Notebook
+
+También se incluye `main.ipynb` para poder ejecutar el proceso paso a paso.
 
 # 2. Estructura del proyecto - Código fuente
 
