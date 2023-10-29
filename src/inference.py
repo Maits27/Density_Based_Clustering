@@ -84,12 +84,21 @@ def asignar_cluster_test(train,test,clusters):
             """
     return clusters_test
 
-def distancias_instancia_i(train,test_instance):
+def distancias_instancia_i(train,test, pathTrain,pathTest,i):
+    print("TEXTO INSTANCIA TEST:", imprimir_instancia(pathTest, i))
+    test_instance=test[i]
     distancias = 1 - cosine_similarity(test_instance.reshape(1, -1), train)[0]
     instanciaCercana = np.argmin(distancias)
 
+
     print("DISTANCIAS", distancias)
-    print("INSTANCIA MAS CERCANA:", instanciaCercana,", DISTANCIA:",distancias[instanciaCercana])
+    print("INSTANCIA TRAIN MAS CERCANA:", instanciaCercana,", DISTANCIA:",distancias[instanciaCercana])
+
+
+    print("TEXTO INSTANCIA TRAIN:",imprimir_instancia(pathTrain,instanciaCercana))
+
+
+
 
 def reducir_dim(train, test,dim):
     print('Dim train originally: ', np.array(train).shape)
