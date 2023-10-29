@@ -11,3 +11,6 @@ out/distances/distances1000*
 
 # Temp images
 img/tmp/*
+
+# Pycharm files
+.idea
