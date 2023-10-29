@@ -30,8 +30,8 @@ def executeClustering(clusteringAlgorithm, epsilon, minPts):
 def evaluate(rawData, rawDataWithClass, clusters, numClusters):
     tokensSinLimpiar = tokenizarSinLimpiar(rawDataWithClass) 
 
-    evaluation.classToCluster(tokensSinLimpiar, clusters) # TODO da error, no hay clase
-    evaluation.wordCloud(clusters, tokensSinLimpiar)
+    evaluation.classToCluster(rawDataWithClass, clusters) # TODO da error, no hay clase
+    evaluation.wordCloud(clusters, tokensSinLimpiar) 
     evaluation.getClusterSample(clusterList=clusters, 
                                 numClusters=numClusters,
                                 rawData=rawData,
