@@ -5,41 +5,54 @@ import clustering
 import evaluation
 import sys
 
-# Definir parámetros
-nInstances = 10000
-path = f'../Datasets/Suicide_Detection{nInstances}.csv' # Previosuly reduced with reduceDataset.py
-vectorsDimension = 500 # Not used for 'bertTransformer'
-vectorizationMode = vectorization.bertTransformer # doc2vec, tfidf, bertTransformer
-clusteringAlgorithm = clustering.DensityAlgorithmUrruela # DensityAlgorithmUrruela, DensityAlgorithm, DensityAlgorithm2, DBScanOriginal
-epsilon = 2.567
-minPts = 12
 
-# Pre-proceso
-rawData = loadRAW(path)
-if vectorizationMode != vectorization.bertTransformer:
-    textosToken = tokenize(rawData)
-    textosEmbedding = vectorizationMode(textosToken=textosToken, dimensiones=vectorsDimension)
-else: 
-    textEmbeddings = vectorizationMode(rawData)
+def preProcess(nInstances, vectorsDimension, vectorizationMode):
+    path = f'../Datasets/Suicide_Detection{nInstances}.csv' # Previosuly reduced with reduceDataset.py
+    rawData = loadRAW(path)
+    if vectorizationMode != vectorization.bertTransformer:
+        textosToken = tokenize(rawData)
+        textEmbeddings = vectorizationMode(textosToken=textosToken, dimensiones=vectorsDimension)
+    else: 
+        textEmbeddings = vectorizationMode(rawData)
+    return rawData, textEmbeddings
 
-# Clustering
-algoritmo = clusteringAlgorithm(textEmbeddings, epsilon=epsilon, minPt=minPts)
-algoritmo.ejecutarAlgoritmo()
-algoritmo.imprimir()
-clusters = algoritmo.clusters
-saveClusters(clusters, 'dbscan')
 
-# Evaluación
-tokensSinLimpiar = loadSinLimpiarTokens(length=nInstances)
+def executeClustering(clusteringAlgorithm, epsilon, minPts):
+    algoritmo = clusteringAlgorithm(textEmbeddings, epsilon=epsilon, minPt=minPts)
+    algoritmo.ejecutarAlgoritmo()
+    algoritmo.imprimir()
+    clusters = algoritmo.clusters
+    numClusters = algoritmo.getNumClusters()
+    return clusters, numClusters
 
-evaluation.classToCluster(rawData, clusters)
-evaluation.wordCloud(clusters, tokensSinLimpiar)
-evaluation.getClusterSample(clusterList=algoritmo.clusters, 
-                            numClusters=algoritmo.getNumClusters(),
-                            rawData=rawData,
-                            sample=5)
+
+def evaluate(nInstances, rawData, clusters, numClusters):
+    tokensSinLimpiar = loadSinLimpiarTokens(length=nInstances)
+
+    evaluation.classToCluster(rawData, clusters)
+    evaluation.wordCloud(clusters, tokensSinLimpiar)
+    evaluation.getClusterSample(clusterList=clusters, 
+                                numClusters=numClusters,
+                                rawData=rawData,
+                                sample=5)
+
 
 if __name__ == '__main__':
     nInstances = int(sys.argv[1])
-    path = sys.argv[2]
+    vectorsDimension = int(sys.argv[2])
+    if sys.argv[3] == 'doc2vec':
+        vectorizationMode = vectorization.bertTransformer
+    elif sys.argv[3] == 'tfidf':
+        vectorizationMode = vectorization.tfidf
+    elif sys.argv[3] == 'bert':
+        vectorizationMode = vectorization.bertTransformer
+    if sys.argv[4] == 'ourDensityAlgorithm':
+        clusteringAlgorithm = clustering.DensityAlgorithmUrruela
+    elif sys.argv[4] == 'dbscan':
+        clusteringAlgorithm = clustering.DBScanOriginal
+    epsilon = int(sys.argv[5])
+    minPts = int(sys.argv[6])
 
+    rawData, textEmbeddings = preProcess(nInstances, vectorsDimension, vectorizationMode)
+    clusters, numClusters = executeClustering(clusteringAlgorithm, epsilon, minPts)
+    evaluate(nInstances, rawData, clusters, numClusters)

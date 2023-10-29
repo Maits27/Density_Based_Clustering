@@ -124,8 +124,10 @@ def saveInCSV2(nInstances, dimension, espilon, minPts, media_puntos_cluster, min
 def saveClusters(clusters, name):
     np.save(f'../out/cluster_labels/clusters_{name}', clusters)
 
+
 def loadClusters(name):
     return np.load(f'../out/cluster_labels/clusters_{name}.npy')
+
 
 def saveDistances(distancesDict, nInstances, dimensiones):
     ruta = Path(f'../out/distances/distances{nInstances}_dim{dimensiones}.json')

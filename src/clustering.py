@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from scipy import spatial
 
-from loadSaveData import saveDistances, loadDistances
+from loadSaveData import saveDistances, loadDistances, saveClusters
 
 def distance(vector1, vector2):
     return np.linalg.norm(vector1 - vector2)
@@ -39,6 +39,8 @@ class DensityAlgorithmUrruela:
 
         self.reclasificarInst()
         self.reasignarLabelCluster()
+        saveClusters(self.clusters, 'urruela')
+
 
     def calcular_distancias(self):
         if len(self.distancias) == 0:
@@ -140,6 +142,7 @@ class DensityAlgorithm:
         self.calcular_distancias()
         self.buscarNucleos()
         self.crearClusters()
+        saveClusters(self.clusters, 'algorithm1')
 
     def buscarNucleos(self):
         for i, _ in enumerate(self.vectors):
@@ -234,6 +237,7 @@ class DensityAlgorithm2:
                     cluster_id = cluster_id + 1
                     self.expand_cluster(labels, i, neighbors, cluster_id)
         self.clusters = labels
+        saveClusters(self.clusters, 'algorithm2')
         return labels
 
     def imprimir(self):
@@ -262,6 +266,8 @@ class DBScanOriginal:
         # Aplicar DBSCAN a los vectores de documentos
         dbscan = DBSCAN(eps=self.epsilon, min_samples=self.minPt, metric='cosine')  # Ajusta los parámetros según tu caso
         self.clusters = dbscan.fit_predict(self.vectors)
+        saveClusters(self.clusters, 'dbscan')
+        
 
     def imprimir(self):
         total = 0
