@@ -17,6 +17,8 @@ out/distances/*
 !out/distances/.gitkeep
 out/embeddings/*
 !out/embeddings/.gitkeep
+out/embeddings/bert/*
+!out/embeddings/bert
 !out/embeddings/bert/.gitkeep
 out/eProjectorTSV/*
 !out/eProjectorTSV/.gitkeep
