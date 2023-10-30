@@ -152,9 +152,8 @@ Este módulo ofrece 2 tipos de tokenizaciones:
 
 ### 2.1.3. vectorization.py
 
-Este módulo ofrece 3 tipos de vectorizaciones:
+Este módulo ofrece 2 tipos de vectorizaciones:
 
-- TF-IDF
 - Doc2Vec
 - Vectorización mediante Transformers
 
@@ -174,7 +173,7 @@ Este módulo ofrece varios tipos de evaluación:
   - Jaccard Score
   - Fowlkes Mallows Score
   - Silhouette
-- Pair-Wise-Evaluation entre dos clusterings
+- Pair-Wise-Evaluation entre dos modelos de clustering
 - Class-to-cluster evaluation
 - Generación de WordClouds
 - Conseguir muestras de los clusters
