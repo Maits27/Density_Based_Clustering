@@ -99,20 +99,11 @@ Alternativamente, se incluye `main.ipynb` para poder ejecutar el proceso paso a 
 
 Se pide como requisito tener Docker instalado.
 
-1. Clonar el repositorio:
-
+1. Descargar la imagen desde _DockerHub_:
 ```bash
-git clone https://github.com/Maits27/Density_Based_Clustering.git
+docker pull sergiom8m8/density_clustering
 ```
-
-2. Crear la imagen:
-
-```bash
-cd ./Density_Based_Clustering
-docker build -t density_clustering .
-```
-
-3. Ejecutar imagen:
+2. Ejecutar imagen:
 
 ```bash
 docker run -it density_clustering <numInstances> <vectorsDim> <vectorType> <algorithm> <epsilon> <minPts>
