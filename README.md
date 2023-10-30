@@ -2,8 +2,8 @@
   - [1.1. Dataset](#11-dataset)
   - [1.2. Ejecución](#12-ejecución)
     - [1.2.1. Requisitos](#121-requisitos)
-    - [Ejecución local](#ejecución-local)
-    - [1.2.4. Ejecución con Docker](#124-ejecución-con-docker)
+    - [1.2.2. Ejecución local](#122-ejecución-local)
+    - [1.2.3. Ejecución con Docker](#123-ejecución-con-docker)
 - [2. Estructura del proyecto - Código fuente](#2-estructura-del-proyecto---código-fuente)
   - [2.1. Proceso prinicipal](#21-proceso-prinicipal)
     - [2.1.1. reduceDataset.py](#211-reducedatasetpy)
@@ -45,7 +45,7 @@ Requisitos:
 * Tener `python3` instalado
 * Tener `pip` instalado
 
-### Ejecución local
+### 1.2.2. Ejecución local
 
 1. Clonar el repositorio:
 
@@ -89,7 +89,7 @@ python main.py 10000 768 bert dbscan 0.0071 5
 
 Alternativamente, se incluye `main.ipynb` para poder ejecutar el proceso paso a paso.
 
-### 1.2.4. Ejecución con Docker
+### 1.2.3. Ejecución con Docker
 
 Se pide como requisito tener Docker instalado.
 
@@ -104,8 +104,15 @@ git clone https://github.com/Maits27/Density_Based_Clustering.git
 ```bash
 cd ./Density_Based_Clustering
 docker build -t density_clustering .
-docker run -it density_clustering 10000 768 bert ourDensityAlgorithm 2.567 12
 ```
+
+3. Ejecutar imagen:
+
+```bash
+docker run -it density_clustering <numInstances> <vectorsDim> <vectorType> <algorithm> <epsilon> <minPts>
+```
+
+Los valores que pueden tomar los campos se explican en la [sección 1.2.2.](#122-ejecución-local)
 
 # 2. Estructura del proyecto - Código fuente
 
