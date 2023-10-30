@@ -23,7 +23,7 @@
 
 ## 1.1. Dataset
 
-El dataset se puede obtener de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch). Este dataset tiene que ser añadido a la carpeta `./Datasets`
+El dataset se puede obtener de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch). Este dataset tiene que ser añadido a la carpeta `/Datasets`. Como prueba, se deja un archivo de 10000 instancias en la carpeta `/Datasets`.
 
 La elección del tamaño del dataset se puede hacer teniendo en cuenta los siguientes tiempos:
 

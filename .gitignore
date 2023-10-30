@@ -22,8 +22,11 @@ out/eProjectorTSV/*
 out/tokens/*
 !out/tokens/.gitkeep
 
-# Temp images
-img/tmp/*
+# /img images
+img/*
+!img/tmp/.gitkeep
+!img/diagrams/*
+
 
 # Pycharm files
 .idea
