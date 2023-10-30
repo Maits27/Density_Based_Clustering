@@ -9,19 +9,6 @@ import torch # PyTorch
 import numpy as np
 
 
-def tfidf(textosToken, dimensiones):
-    """
-    Genera vectorización de los textos usando TF-IDF
-    Devuelve las distancias vectorizadas
-    """
-
-    vectorizer = TfidfVectorizer()
-    documentVectors = vectorizer.fit_transform(textosToken)
-    saveEmbeddings(documentVectors, dimensiones)
-
-    return documentVectors
-
-
 def doc2vec(textosToken, dimensiones):
     """
     Genera vectorización de los textos usando Doc2vec

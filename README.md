@@ -60,7 +60,7 @@ cd ./Density_Based_Clustering
 pip install -r requirements.txt
 ```
 
-3. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `./Datasets` del proyecto.
+3. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `/Datasets` del proyecto.
 
 4. Ejecutar el archivo `./src/main.py`:
 
