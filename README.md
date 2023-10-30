@@ -53,16 +53,23 @@ Requisitos:
 git clone https://github.com/Maits27/Density_Based_Clustering.git
 ```
 
-2. Instalar las dependencias
+2. Creamos un entorno virtual (ejemplo con venv) y entramos en él:
+
+```bash
+python -m venv .env
+source .env/bin/activate
+```
+
+3. Instalar las dependencias:
 
 ```bash
 cd ./Density_Based_Clustering
 pip install -r requirements.txt
 ```
 
-3. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `/Datasets` del proyecto.
+4. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `/Datasets` del proyecto.
 
-4. Ejecutar el archivo `./src/main.py`:
+5. Ejecutar el archivo `./src/main.py`:
 
 ```bash
 cd ./src/
