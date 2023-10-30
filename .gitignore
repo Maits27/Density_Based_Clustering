@@ -24,6 +24,7 @@ out/tokens/*
 
 # /img images
 img/elbowMethod/*
+!img/elbowMethod/.gitkeep
 img/tmp/*
 !img/tmp/.gitkeep
 
