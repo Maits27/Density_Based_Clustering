@@ -1,5 +1,7 @@
+# Para borrar archivos que ya trackeaba git, usar git rm --cached <path>
+
+# Datasets
 Datasets/*
-!Datasets/corto*
 !Datasets/Suicide_Detection10000.csv
 
 # Ignore pycache
