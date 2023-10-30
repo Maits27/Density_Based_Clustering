@@ -28,7 +28,7 @@ El dataset se puede obtener de [kaggle.com/datasets/nikhileswarkomati/suicide-wa
 La elección del tamaño del dataset se puede hacer teniendo en cuenta los siguientes tiempos:
 
 
-|                 | Limpieza, tokenización y lematización |  doc2vec (150 dim) | sklearn.DBSCAN (epsilon:2, minPts: 2) |
+|                 | Limpieza, tokenización y lematización |  doc2vec (150 dim) | sklearn.DBSCAN (epsilon:2, minPts: 2) |  Transformer embbedding
 |-----------------|---------------------------------------|--------------------|---------------------------------------|
 |100 instances:   |                   3.2s                |          0.9s      |                   0.5s                |
 |1000 instances:  |                  23.4s                |          5.8s      |                   3.7s                |
@@ -42,8 +42,9 @@ La elección del tamaño del dataset se puede hacer teniendo en cuenta los sigui
 ### 1.2.1. Requisitos
 
 Requisitos:
-* Tener `python3` instalado
+* Tener `python3` (vesión 3.10.13) instalado
 * Tener `pip` instalado
+* Tener `git` instalado
 
 ### 1.2.2. Ejecución local
 
@@ -67,9 +68,15 @@ cd ./Density_Based_Clustering
 pip install -r requirements.txt
 ```
 
-4. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `/Datasets` del proyecto.
+4. Instalamos el modelo necesario para tokenizar:
 
-5. Ejecutar el archivo `./src/main.py`:
+```bash
+python -m spacy download en_core_web_sm
+```
+
+5. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `/Datasets` del proyecto.
+
+6. Ejecutar el archivo `./src/main.py`:
 
 ```bash
 cd ./src/
