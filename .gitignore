@@ -8,11 +8,17 @@ src/__pycache__
 
 # out files
 out/Barridos/*
+!out/Barridos
 out/cluster_labels/*
+!out/cluster_labels
 out/distances/*
+!out/distances
 out/embeddings/*
+!out/embeddings
 out/eProjectorTSV/*
+!out/eProjectorTSV
 out/tokens/*
+!out/tokens
 
 # Temp images
 img/tmp/*
