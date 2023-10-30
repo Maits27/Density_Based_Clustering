@@ -106,7 +106,7 @@ docker pull sergiom8m8/density_clustering
 2. Ejecutar imagen:
 
 ```bash
-docker run -it density_clustering <numInstances> <vectorsDim> <vectorType> <algorithm> <epsilon> <minPts>
+docker run -it sergiom8m8/density_clustering <numInstances> <vectorsDim> <vectorType> <algorithm> <epsilon> <minPts>
 ```
 
 Los valores que pueden tomar los campos se explican en la [sección 1.2.2.](#122-ejecución-local)
