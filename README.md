@@ -191,7 +191,7 @@ Es el módulo con las funciones y utilidades para realizar la inferencia, es dec
 
 ## 2.3. Módulos de utilidades
 
-Son módulos auxiliares utilizados a la hora de realizar la inferencia.
+Son módulos auxiliares utilizados por otros módulos para tareas concretas.
 
 ### 2.3.1. paramOptimization.py
 
