@@ -103,7 +103,8 @@ git clone https://github.com/Maits27/Density_Based_Clustering.git
 
 ```bash
 cd ./Density_Based_Clustering
-
+docker build -t density_clustering .
+docker run -it density_clustering 10000 768 bert ourDensityAlgorithm 2.567 12
 ```
 
 # 2. Estructura del proyecto - Código fuente
