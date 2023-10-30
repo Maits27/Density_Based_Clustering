@@ -23,9 +23,9 @@ out/tokens/*
 !out/tokens/.gitkeep
 
 # /img images
-img/*
+img/elbowMethod/*
+img/tmp/*
 !img/tmp/.gitkeep
-!img/diagrams/*
 
 
 # Pycharm files
