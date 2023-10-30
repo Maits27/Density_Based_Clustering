@@ -8,17 +8,17 @@ src/__pycache__
 
 # out files
 out/Barridos/*
-!out/Barridos
+!out/Barridos/.gitkeep
 out/cluster_labels/*
-!out/cluster_labels
+!out/cluster_labels/.gitkeep
 out/distances/*
-!out/distances
+!out/distances/.gitkeep
 out/embeddings/*
-!out/embeddings
+!out/embeddings/.gitkeep
 out/eProjectorTSV/*
-!out/eProjectorTSV
+!out/eProjectorTSV/.gitkeep
 out/tokens/*
-!out/tokens
+!out/tokens/.gitkeep
 
 # Temp images
 img/tmp/*
