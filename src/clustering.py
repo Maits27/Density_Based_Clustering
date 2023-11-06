@@ -118,7 +118,7 @@ class DensityAlgorithmUrruela:
         return len(set(self.clusters) - {-1})
 
     def imprimir(self):
-        for cluster in range(min(self.clusters), max(self.clusters) + 2):
+        for cluster in range(min(self.clusters), max(self.clusters) + 1):
             kont = 0
             for i in self.clusters:
                 if i == cluster:

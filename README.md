@@ -23,27 +23,20 @@
 
 ## 1.1. Dataset
 
-El dataset se puede obtener de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch). Este dataset tiene que ser añadido a la carpeta `./Datasets`
+El dataset se puede obtener de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch). Este dataset tiene que ser añadido a la carpeta `/Datasets`. Como prueba, se deja un archivo de 10000 instancias en la carpeta `/Datasets`.
 
 La elección del tamaño del dataset se puede hacer teniendo en cuenta los siguientes tiempos:
 
-
-|                 | Limpieza, tokenización y lematización |  doc2vec (150 dim) | sklearn.DBSCAN (epsilon:2, minPts: 2) |
-|-----------------|---------------------------------------|--------------------|---------------------------------------|
-|100 instances:   |                   3.2s                |          0.9s      |                   0.5s                |
-|1000 instances:  |                  23.4s                |          5.8s      |                   3.7s                |
-|5000 instances:  |               1m 55.7s                |         29.6s      |                  19.9s                |
-|10000 instances: |               3m 56.9s                |       1m 0.9s      |                   47s                 |
-|20000 instances: |               7m 47.1s                |       2m 0.0s      |               1m 29.4s                |
-
+<img src="img/diagrams/rendimiento.png" alt="drawing" width="500"/>
 
 ## 1.2. Ejecución
 
 ### 1.2.1. Requisitos
 
 Requisitos:
-* Tener `python3` instalado
+* Tener `python3` (vesión 3.10.13) instalado
 * Tener `pip` instalado
+* Tener `git` instalado
 
 ### 1.2.2. Ejecución local
 
@@ -53,16 +46,29 @@ Requisitos:
 git clone https://github.com/Maits27/Density_Based_Clustering.git
 ```
 
-2. Instalar las dependencias
+2. Creamos un entorno virtual (ejemplo con venv) y entramos en él:
+
+```bash
+python -m venv .env
+source .env/bin/activate
+```
+
+3. Instalar las dependencias:
 
 ```bash
 cd ./Density_Based_Clustering
 pip install -r requirements.txt
 ```
 
-3. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `./Datasets` del proyecto.
+4. Instalamos el modelo necesario para tokenizar:
 
-4. Ejecutar el archivo `./src/main.py`:
+```bash
+python -m spacy download en_core_web_sm
+```
+
+5. Descargar dataset de [kaggle.com/datasets/nikhileswarkomati/suicide-watch](https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch) y añadirlo a la carpeta `/Datasets` del proyecto.
+
+6. Ejecutar el archivo `./src/main.py`:
 
 ```bash
 cd ./src/
@@ -93,23 +99,14 @@ Alternativamente, se incluye `main.ipynb` para poder ejecutar el proceso paso a 
 
 Se pide como requisito tener Docker instalado.
 
-1. Clonar el repositorio:
-
+1. Descargar la imagen desde _DockerHub_:
 ```bash
-git clone https://github.com/Maits27/Density_Based_Clustering.git
+docker pull sergiom8m8/density_clustering
 ```
-
-2. Crear la imagen:
-
-```bash
-cd ./Density_Based_Clustering
-docker build -t density_clustering .
-```
-
-3. Ejecutar imagen:
+2. Ejecutar imagen:
 
 ```bash
-docker run -it density_clustering <numInstances> <vectorsDim> <vectorType> <algorithm> <epsilon> <minPts>
+docker run -it sergiom8m8/density_clustering <numInstances> <vectorsDim> <vectorType> <algorithm> <epsilon> <minPts>
 ```
 
 Los valores que pueden tomar los campos se explican en la [sección 1.2.2.](#122-ejecución-local)
@@ -152,9 +149,8 @@ Este módulo ofrece 2 tipos de tokenizaciones:
 
 ### 2.1.3. vectorization.py
 
-Este módulo ofrece 3 tipos de vectorizaciones:
+Este módulo ofrece 2 tipos de vectorizaciones:
 
-- TF-IDF
 - Doc2Vec
 - Vectorización mediante Transformers
 
@@ -174,7 +170,7 @@ Este módulo ofrece varios tipos de evaluación:
   - Jaccard Score
   - Fowlkes Mallows Score
   - Silhouette
-- Pair-Wise-Evaluation entre dos clusterings
+- Pair-Wise-Evaluation entre dos modelos de clustering
 - Class-to-cluster evaluation
 - Generación de WordClouds
 - Conseguir muestras de los clusters
