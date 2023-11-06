@@ -15,7 +15,7 @@ from sklearn.decomposition import PCA
 
 def create_test_embeddings():
     #TRANSFORMERS TEST
-    path = '../Datasets/Suicide_Detection_test2000(train10000).csv'
+    path = '../Datasets/test.csv'
     vectorizationMode = vectorization.bertTransformer # doc2vec, tfidf, bertTransformer
     rawData = loadRAW(path)
     test = vectorizationMode(rawData)
@@ -71,34 +71,69 @@ def add_instances_to_test(train,test,instances):
     return test
 
 
-def asignar_cluster_test(train,test,clusters):
+def asignar_cluster_test_coseno(train,test,clusters):
     clusters_test=[]
     for test_instance in test:
-            distancias=1- cosine_similarity(test_instance.reshape(1,-1),train)[0]
-            instanciaCercana = np.argmin(distancias)
-            cluster_asignado=clusters[instanciaCercana]
-            clusters_test.append(cluster_asignado)
+        distancias=1- cosine_similarity(test_instance.reshape(1,-1),train)[0]
+        instanciaCercana = np.argmin(distancias)
+        cluster_asignado=clusters[instanciaCercana]
+        clusters_test.append(cluster_asignado)
+        """ COGER K instancias (falta el parametro)
+        kInstanciasMasCercanas = np.argsort(distancias)[:kVecinos]
+        clusters_asignados = [clusters[i] for i in kInstanciasMasCercanas]
+        cluster_asignado = statistics.mode(clusters_asignados)
+        clusters_test.append(cluster_asignado)
+        """
+    return clusters_test
+
+def asignar_cluster_test_euclidea(train,test,clusters):
+    clusters_test=[]
+
+    for test_instance in test:
+        distancias = []
+        for train_instance in train:
+            distancia= np.linalg.norm(test_instance - train_instance)
+            distancias.append(distancia)
+
             """ COGER K instancias (falta el parametro)
             kInstanciasMasCercanas = np.argsort(distancias)[:kVecinos]
             clusters_asignados = [clusters[i] for i in kInstanciasMasCercanas]
             cluster_asignado = statistics.mode(clusters_asignados)
             clusters_test.append(cluster_asignado)
             """
+        instanciaCercana = np.argmin(distancias)
+        cluster_asignado = clusters[instanciaCercana]
+        clusters_test.append(cluster_asignado)
     return clusters_test
 
 
-def distancias_instancia_i(train,test, pathTrain,pathTest,i):
+def distancias_instancia_i_coseno(train,test, pathTrain,pathTest,i,kInstancias):
     print("TEXTO INSTANCIA TEST:", imprimir_instancia(pathTest, i))
     test_instance=test[i]
     distancias = 1 - cosine_similarity(test_instance.reshape(1, -1), train)[0]
-    instanciaCercana = np.argmin(distancias)
+    print("DISTANCIAS", distancias)
+    kInstanciasMasCercanas = np.argsort(distancias)[:kInstancias]
 
+    for instancia in kInstanciasMasCercanas:
+        print("----------------------------------------------------------------")
+        print("INDICE INSTANCIA TRAIN: ", instancia,", DISTANCIA: ",distancias[instancia])
+        print("TEXTO: ",imprimir_instancia(pathTrain,instancia))
+
+def distancias_instancia_i_euclidea(train,test, pathTrain,pathTest,i,kInstancias):
+    print("TEXTO INSTANCIA TEST:", imprimir_instancia(pathTest, i))
+    test_instance=test[i]
+    distancias = []
+    for train_instance in train:
+        distancia = np.linalg.norm(test_instance - train_instance)
+        distancias.append(distancia)
 
     print("DISTANCIAS", distancias)
-    print("INSTANCIA TRAIN MAS CERCANA:", instanciaCercana,", DISTANCIA:",distancias[instanciaCercana])
+    kInstanciasMasCercanas = np.argsort(distancias)[:kInstancias]
 
-
-    print("TEXTO INSTANCIA TRAIN:",imprimir_instancia(pathTrain,instanciaCercana))
+    for instancia in kInstanciasMasCercanas:
+        print("----------------------------------------------------------------")
+        print("INDICE INSTANCIA TRAIN: ", instancia,", DISTANCIA: ",distancias[instancia])
+        print("TEXTO: ",imprimir_instancia(pathTrain,instancia))
 
 
 def reducir_dim(train, test,dim):
@@ -138,9 +173,7 @@ def grafico(train_reducido, clusters, test_reducido, clusters_test):
                '#82c280', '#60666b', '#8b58ad']
     unique_labels = set(clusters_test) - {-1}
 
-    # ruido
-    noise_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == -1])
-    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='#87CEEB', label='Noise Test')
+
 
     # instancias test cluster
     for label in unique_labels:
@@ -151,6 +184,11 @@ def grafico(train_reducido, clusters, test_reducido, clusters_test):
     plt.xlabel('Dimensión X')
     plt.ylabel('Dimensión Y')
     plt.legend(ncol=2)
+
+    # ruido
+    noise_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == -1])
+    plt.scatter(noise_points[:, 0], noise_points[:, 1], c='#87CEEB', label='Noise Test')
+
     plt.show()
 
 
@@ -178,9 +216,7 @@ def grafico_3d(train_reducido, clusters, test_reducido, clusters_test):
                '#82c280', '#60666b', '#8b58ad']
     unique_labels = set(clusters_test) - {-1}
 
-    # ruido
-    noise_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == -1])
-    ax.scatter(noise_points[:, 0], noise_points[:, 1],noise_points[:, 2], c='c', label='Noise Test')
+
 
     # instancias test cluster
     for label in unique_labels:
@@ -192,6 +228,11 @@ def grafico_3d(train_reducido, clusters, test_reducido, clusters_test):
     ax.set_zlabel('Dimensión Z')
     plt.title('Gráfico de Densidad basado en DBSCAN (3D)')
     plt.legend(ncol=2)
+
+    # ruido
+    noise_points = np.array([test_reducido[i] for i in range(len(test_reducido)) if clusters_test[i] == -1])
+    ax.scatter(noise_points[:, 0], noise_points[:, 1], noise_points[:, 2], c='c', label='Noise Test')
+
     plt.show()
 
 
